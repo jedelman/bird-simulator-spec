@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bird Simulator — Game Design Document v0.1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --sky: #e8f4f8;
+    --dusk: #2d1b4e;
+    --dawn: #f5e6c8;
+    --leaf: #3a6b35;
+    --berry: #c0392b;
+    --feather: #7a6a52;
+    --bone: #f9f5ee;
+    --ink: #1a1208;
+    --mist: #b8c9ce;
+    --gold: #c8902a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bone);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    background: var(--dusk);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 80%, rgba(192,57,43,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(200,144,42,0.1) 0%, transparent 50%);
+  }
+
+  .birds-silhouette {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    opacity: 0.15;
+  }
+
+  .cover-inner {
+    position: relative;
+    text-align: center;
+    max-width: 700px;
+  }
+
+  .cover-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 32px;
+  }
+
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(64px, 10vw, 120px);
+    font-weight: 900;
+    color: var(--bone);
+    line-height: 0.9;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+  }
+
+  .cover h1 em {
+    font-style: italic;
+    color: var(--gold);
+    display: block;
+    font-size: 0.55em;
+    letter-spacing: 0px;
+  }
+
+  .cover-tagline {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--mist);
+    margin-top: 32px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+
+  .cover-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(184,201,206,0.6);
+    letter-spacing: 0.1em;
+    line-height: 2;
+  }
+
+  .cover-bird {
+    font-size: 80px;
+    margin-bottom: 24px;
+    display: block;
+    filter: drop-shadow(0 0 40px rgba(200,144,42,0.3));
+  }
+
+  /* LAYOUT */
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 48px;
+  }
+
+  /* SECTION HEADERS */
+  .section-break {
+    margin: 80px 0 48px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .section-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--berry);
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .section-line {
+    height: 1px;
+    background: var(--feather);
+    opacity: 0.3;
+    flex: 1;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--dusk);
+    line-height: 1.15;
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 40px 0 12px;
+  }
+
+  h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--berry);
+    margin: 28px 0 8px;
+  }
+
+  p { margin-bottom: 16px; }
+
+  strong { font-weight: 600; color: var(--dusk); }
+
+  em { font-style: italic; color: var(--feather); }
+
+  /* CALLOUT BOXES */
+  .callout {
+    border-left: 3px solid var(--gold);
+    padding: 20px 28px;
+    background: rgba(200,144,42,0.06);
+    margin: 32px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .callout.red {
+    border-left-color: var(--berry);
+    background: rgba(192,57,43,0.05);
+  }
+
+  .callout.green {
+    border-left-color: var(--leaf);
+    background: rgba(58,107,53,0.05);
+  }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .callout.red .callout-label { color: var(--berry); }
+  .callout.green .callout-label { color: var(--leaf); }
+
+  /* TABLES */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+
+  thead tr {
+    background: var(--dusk);
+    color: var(--bone);
+  }
+
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(58,107,53,0.04);
+  }
+
+  tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(122,106,82,0.15);
+    vertical-align: top;
+  }
+
+  td.mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--feather);
+  }
+
+  td.highlight {
+    color: var(--berry);
+    font-weight: 600;
+  }
+
+  /* SEASON BLOCKS */
+  .seasons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .season-card {
+    padding: 20px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+
+  .season-card.spring { background: rgba(144,200,100,0.08); border-color: rgba(144,200,100,0.3); }
+  .season-card.summer { background: rgba(200,144,42,0.08); border-color: rgba(200,144,42,0.3); }
+  .season-card.fall { background: rgba(192,57,43,0.06); border-color: rgba(192,57,43,0.25); }
+  .season-card.winter { background: rgba(45,27,78,0.06); border-color: rgba(45,27,78,0.2); }
+  .season-card.spring2 { background: rgba(58,107,53,0.08); border-color: rgba(58,107,53,0.3); }
+
+  .season-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .season-card.spring .season-name { color: #5a9e40; }
+  .season-card.summer .season-name { color: var(--gold); }
+  .season-card.fall .season-name { color: var(--berry); }
+  .season-card.winter .season-name { color: var(--dusk); }
+  .season-card.spring2 .season-name { color: var(--leaf); }
+
+  .season-stat {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .stat-label { color: var(--feather); font-size: 13px; }
+  .stat-val { font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  /* CLASS TREE */
+  .class-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin: 24px 0;
+  }
+
+  .class-card {
+    border: 1px solid rgba(122,106,82,0.2);
+    border-radius: 4px;
+    padding: 20px 24px;
+    background: white;
+  }
+
+  .class-card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(122,106,82,0.15);
+    padding-bottom: 12px;
+  }
+
+  .class-icon { font-size: 24px; }
+
+  .class-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dusk);
+  }
+
+  .class-biome {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--feather);
+    letter-spacing: 0.1em;
+  }
+
+  .class-mechanic {
+    font-size: 13px;
+    color: var(--berry);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .species-list {
+    list-style: none;
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  .species-list li::before {
+    content: '→ ';
+    color: var(--feather);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .species-list .branch::before {
+    content: '  ↳ ';
+    color: var(--mist);
+  }
+
+  .v2-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    background: var(--mist);
+    color: var(--dusk);
+    padding: 1px 5px;
+    border-radius: 2px;
+    margin-left: 4px;
+    vertical-align: middle;
+    opacity: 0.7;
+  }
+
+  /* CONTROLS */
+  .controls-diagram {
+    background: var(--dusk);
+    border-radius: 8px;
+    padding: 40px;
+    margin: 24px 0;
+    color: var(--bone);
+  }
+
+  .control-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 24px;
+  }
+
+  .control-button {
+    border: 1px solid rgba(184,201,206,0.3);
+    border-radius: 4px;
+    padding: 16px 20px;
+  }
+
+  .btn-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .btn-context {
+    font-size: 13px;
+    color: rgba(184,201,206,0.8);
+    line-height: 1.9;
+  }
+
+  .btn-context span {
+    display: block;
+  }
+
+  .btn-context .tap::before { content: '▸ tap: '; color: var(--mist); font-family: 'DM Mono', monospace; font-size: 11px; }
+  .btn-context .hold::before { content: '⏸ hold: '; color: var(--mist); font-family: 'DM Mono', monospace; font-size: 11px; }
+  .btn-context .ctx::before { content: '◆ ctx: '; color: rgba(184,201,206,0.4); font-family: 'DM Mono', monospace; font-size: 11px; }
+
+  /* THREAT METER */
+  .threat-demo {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+
+  .threat-box {
+    width: 80px;
+    height: 60px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    position: relative;
+  }
+
+  .threat-box::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 3px;
+    border: 3px solid;
+  }
+
+  .threat-none { background: rgba(58,107,53,0.1); }
+  .threat-none::after { border-color: rgba(58,107,53,0.3); }
+
+  .threat-low { background: rgba(200,144,42,0.1); }
+  .threat-low::after { border-color: rgba(200,144,42,0.5); animation: pulse-gold 2s ease-in-out infinite; }
+
+  .threat-high { background: rgba(192,57,43,0.1); }
+  .threat-high::after { border-color: rgba(192,57,43,0.8); animation: pulse-red 0.6s ease-in-out infinite; }
+
+  .threat-human { background: rgba(45,27,78,0.1); }
+  .threat-human::after { border-color: transparent; }
+
+  .threat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--feather);
+  }
+
+  .threat-item { display: flex; flex-direction: column; align-items: center; }
+
+  @keyframes pulse-gold {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes pulse-red {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; box-shadow: 0 0 12px rgba(192,57,43,0.5); }
+  }
+
+  /* RISK TABLE */
+  .risk-high { color: var(--berry); font-weight: 600; }
+  .risk-med { color: var(--gold); }
+  .risk-low { color: var(--leaf); }
+
+  /* MILESTONE TABLE */
+  .milestone-tier {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .tier-bronze { background: rgba(184,115,51,0.2); color: #b87333; }
+  .tier-silver { background: rgba(120,120,120,0.15); color: #888; }
+  .tier-gold { background: rgba(200,144,42,0.2); color: var(--gold); }
+  .tier-platinum { background: rgba(45,27,78,0.1); color: var(--dusk); }
+
+  /* TOC */
+  .toc {
+    background: white;
+    border: 1px solid rgba(122,106,82,0.2);
+    border-radius: 4px;
+    padding: 32px 40px;
+    margin: 48px 0;
+  }
+
+  .toc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--feather);
+    margin-bottom: 16px;
+  }
+
+  .toc ol {
+    columns: 2;
+    column-gap: 40px;
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc li {
+    counter-increment: toc;
+    font-size: 15px;
+    line-height: 2.2;
+    display: flex;
+    gap: 8px;
+    break-inside: avoid;
+  }
+
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--berry);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  /* FOOTER */
+  .doc-footer {
+    background: var(--dusk);
+    color: var(--mist);
+    padding: 40px 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    opacity: 0.9;
+  }
+
+  /* HR */
+  hr {
+    border: none;
+    border-top: 1px solid rgba(122,106,82,0.2);
+    margin: 48px 0;
+  }
+
+  /* PRINT */
+  @media print {
+    .cover { min-height: auto; padding: 60px; }
+    .page { padding: 40px; }
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 40px 24px; }
+    .cover { padding: 60px 24px; }
+    .control-row { grid-template-columns: 1fr; }
+    .toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-label">Game Design Document — v0.1 — Confidential</div>
+    <span class="cover-bird">🐦</span>
+    <h1>Bird<em>Simulator</em></h1>
+    <p class="cover-tagline">Live fast. Die cute. Leave a nest behind.</p>
+    <div class="cover-meta">
+      Platform: PC (Steam) · Console (PS5/Xbox) · Nintendo Switch<br>
+      Genre: Roguelike / Third-Person Action · Controller-First<br>
+      Target Runtime: ~20 min per run · Single Player · V1<br>
+      Engine: Unreal Engine · Procedural 3D Environments<br>
+      <br>
+      Authors: [Your Names] · Draft Date: 2026
+    </div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="page">
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li>Vision &amp; Pillars</li>
+      <li>Core Loop</li>
+      <li>Controls</li>
+      <li>Life Cycle &amp; Seasons</li>
+      <li>Core Mechanics</li>
+      <li>Bird Classes &amp; Species</li>
+      <li>Biomes &amp; Environments</li>
+      <li>Predators &amp; Threats</li>
+      <li>Progression &amp; Unlocks</li>
+      <li>Camera &amp; Presentation</li>
+      <li>Audio Direction</li>
+      <li>Technical Notes</li>
+      <li>Out of Scope (V2+)</li>
+      <li>Open Questions</li>
+    </ol>
+  </div>
+
+  <!-- 01 VISION -->
+  <div class="section-break"><span class="section-number">01 —</span><div class="section-line"></div></div>
+  <h2>Vision &amp; Pillars</h2>
+
+  <p><strong>Bird Simulator</strong> is a controller-first, third-person roguelike about the complete life cycle of a bird — from hatchling to fledged nest — played in approximately 20 minutes. Every run is a single life. Permadeath is absolute and unkind. The tone is bright, chaotic, and beautiful: think <em>Dark Souls</em> difficulty wrapped in <em>Katamari Damacy</em> joy.</p>
+
+  <p>The game's central insight is that bird life is genuinely dangerous and genuinely gorgeous, and most games have never tried to capture both at once. A sparrow's world is full of sudden death and sudden wonder. We want players to feel both in the same breath.</p>
+
+  <div class="callout">
+    <div class="callout-label">Design Pillars</div>
+    <p><strong>Awareness over reaction.</strong> The most powerful move in the game is stillness. Players who learn to read the environment before acting survive longer than players who are fast.</p>
+    <p><strong>Economy of energy.</strong> Every action costs stamina. Every moment of rest is also a moment of vulnerability. There is no safe option.</p>
+    <p><strong>Ecological fidelity.</strong> Bird classes, species, biomes, predators, and seasonal rhythms are grounded in real ornithology. The game should feel like a field guide that got too exciting.</p>
+    <p><strong>Two buttons, infinite depth.</strong> The entire game is played with two contextual buttons plus movement. Mastery comes from reading context, not memorizing combos.</p>
+    <p style="margin-bottom:0"><strong>Every run is a gift.</strong> Unlocks are milestone-gated, not run-gated. The only thing that carries over is skill. A new player's tenth run should feel meaningfully better than their first.</p>
+  </div>
+
+  <!-- 02 CORE LOOP -->
+  <div class="section-break"><span class="section-number">02 —</span><div class="section-line"></div></div>
+  <h2>Core Loop</h2>
+
+  <p>A single run represents approximately one year of a bird's life, compressed into 20 minutes. Time is continuous — there is no pause between phases. Environmental cues (light quality, foliage color, snow, temperature shimmer) signal seasonal transitions. The bird's body grows visibly across the run: hatchling to fledgling to juvenile to adult.</p>
+
+  <div class="callout green">
+    <div class="callout-label">Run Structure</div>
+    <p><strong>Birth → Hatchling (mins 0–3) →</strong> Spring. Total dependency. Nest-bound. Primary threat is nest predation. Core mechanic: beg-feeding (B button timing). Lose the nest, lose the run.</p>
+    <p><strong>Fledgling → Juvenile (mins 3–7) →</strong> Late Spring / Early Summer. First flights. High predation risk. Learning foraging. Stamina bar introduced.</p>
+    <p><strong>Adult (mins 7–14) →</strong> Summer through Fall. Full mobility. Foraging, territorial defense, mate-finding. Seasonal threat escalation.</p>
+    <p><strong>Winter Survival (mins 14–17) →</strong> High stamina drain, low food, low predators. Pure resource management.</p>
+    <p style="margin-bottom:0"><strong>Breeding Season (mins 17–20) →</strong> Spring 2. Mate-finding, nest-building, egg-tending, nest defense. Red Light / Green Light final sequence. Win condition: fledge the nest.</p>
+  </div>
+
+  <p><strong>Win condition:</strong> Successfully fledge at least one chick from the breeding nest. Partial success (some chicks survive) counts. Zero survivors = run failure even if the bird is alive.</p>
+
+  <p><strong>Loss conditions:</strong> Bird death (predation, starvation, collision, poison, hunter). Nest total loss during breeding phase. Stamina reaching zero and remaining there (starvation).</p>
+
+  <div class="callout red">
+    <div class="callout-label">Permadeath Note</div>
+    <p style="margin-bottom:0">Death is permanent and instant. No checkpoints, no revives, no continue screens. The death animation should be brief, expressive, and slightly absurd — the bird does not suffer, it simply ends. Cut to a single-frame illustration of the cause of death (hawk silhouette, car, cat paw) with species name and survival time. Then: back to species select.</p>
+  </div>
+
+  <!-- 03 CONTROLS -->
+  <div class="section-break"><span class="section-number">03 —</span><div class="section-line"></div></div>
+  <h2>Controls</h2>
+
+  <p>The game is entirely two-button plus dual analog stick. Button assignments are fully remappable. Default layout targets shoulder/trigger preferences but face button layout is equally valid. There is no third button, no UI button during gameplay, no pause menu accessible mid-threat.</p>
+
+  <div class="controls-diagram">
+    <div style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold);">Full Control Scheme</div>
+    <div class="control-row">
+      <div class="control-button">
+        <div class="btn-label">Button A — Move / Fly</div>
+        <div class="btn-context">
+          <span class="tap">hop (ground)</span>
+          <span class="tap">flap (airborne)</span>
+          <span class="hold">glide (airborne)</span>
+          <span class="hold">sprint/run (ground)</span>
+          <span class="ctx">takeoff when near threat</span>
+          <span class="ctx">land when near perch</span>
+        </div>
+      </div>
+      <div class="control-button">
+        <div class="btn-label">Button B — Interact / Vocalize</div>
+        <div class="btn-context">
+          <span class="tap">eat (near food)</span>
+          <span class="tap">alarm call (near threat)</span>
+          <span class="tap">beg (hatchling phase)</span>
+          <span class="hold">sing (mate attraction)</span>
+          <span class="hold">territorial call (adult)</span>
+          <span class="ctx">aggressive display (near rival)</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <div class="control-button">
+        <div class="btn-label">Left Stick</div>
+        <div class="btn-context">
+          <span class="ctx">ground: move / strafe</span>
+          <span class="ctx">air: direction + bank</span>
+          <span class="ctx">perched: look around</span>
+        </div>
+      </div>
+      <div class="control-button">
+        <div class="btn-label">Right Stick</div>
+        <div class="btn-context">
+          <span class="ctx">camera orbit (all states)</span>
+          <span class="ctx">independent from movement</span>
+          <span class="ctx">used for environmental reads</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px; font-size:13px; color:rgba(184,201,206,0.6); font-style:italic;">
+      Stillness = no button input + no stick input. The bird breathes. Awareness accumulates.
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">Contextual Priority Rules</div>
+    <p>When multiple B-button actions are possible simultaneously (e.g., near food AND near a threat), the game resolves by <strong>threat priority</strong>: threat context always overrides foraging context. Singing is only available when threat meter is clear. Context is communicated through subtle environmental cues (food glows faintly, perches shimmer) — not HUD prompts.</p>
+    <p style="margin-bottom:0">The goal: a player should never be confused about what a button will do. Context must be unambiguous before the game enables an action.</p>
+  </div>
+
+  <!-- 04 LIFE CYCLE -->
+  <div class="section-break"><span class="section-number">04 —</span><div class="section-line"></div></div>
+  <h2>Life Cycle &amp; Seasons</h2>
+
+  <p>Twenty minutes maps to twelve months plus a second spring breeding window. Each season has a distinct visual identity, threat profile, food availability, and stamina economy. Season transitions are environmental — no UI announcement. Players learn to read the world.</p>
+
+  <div class="seasons">
+    <div class="season-card spring">
+      <div class="season-name">🌱 Spring (Year 1) — mins 0–5</div>
+      <div class="season-stat">
+        <div class="stat-row"><span class="stat-label">Predation risk</span><span class="stat-val risk-high">HIGH</span></div>
+        <div class="stat-row"><span class="stat-label">Food availability</span><span class="stat-val risk-low">HIGH</span></div>
+        <div class="stat-row"><span class="stat-label">Stamina drain</span><span class="stat-val risk-low">LOW</span></div>
+        <div class="stat-row"><span class="stat-label">Key threat</span><span class="stat-val">Nest predators</span></div>
+      </div>
+    </div>
+    <div class="season-card summer">
+      <div class="season-name">☀️ Summer — mins 5–10</div>
+      <div class="season-stat">
+        <div class="stat-row"><span class="stat-label">Predation risk</span><span class="stat-val risk-med">MODERATE</span></div>
+        <div class="stat-row"><span class="stat-label">Food availability</span><span class="stat-val risk-med">MODERATE</span></div>
+        <div class="stat-row"><span class="stat-label">Stamina drain</span><span class="stat-val risk-low">LOW</span></div>
+        <div class="stat-row"><span class="stat-label">Key threat</span><span class="stat-val">Competition + cats</span></div>
+      </div>
+    </div>
+    <div class="season-card fall">
+      <div class="season-name">🍂 Fall — mins 10–14</div>
+      <div class="season-stat">
+        <div class="stat-row"><span class="stat-label">Predation risk</span><span class="stat-val risk-high">HIGH</span></div>
+        <div class="stat-row"><span class="stat-label">Food availability</span><span class="stat-val risk-med">LOW-MOD</span></div>
+        <div class="stat-row"><span class="stat-label">Stamina drain</span><span class="stat-val risk-med">MODERATE</span></div>
+        <div class="stat-row"><span class="stat-label">Key threat</span><span class="stat-val">Hawks, scarcity</span></div>
+      </div>
+    </div>
+    <div class="season-card winter">
+      <div class="season-name">❄️ Winter — mins 14–17</div>
+      <div class="season-stat">
+        <div class="stat-row"><span class="stat-label">Predation risk</span><span class="stat-val risk-low">LOW</span></div>
+        <div class="stat-row"><span class="stat-label">Food availability</span><span class="stat-val risk-high">SCARCE</span></div>
+        <div class="stat-row"><span class="stat-label">Stamina drain</span><span class="stat-val risk-high">HIGH</span></div>
+        <div class="stat-row"><span class="stat-label">Key threat</span><span class="stat-val">Starvation</span></div>
+      </div>
+    </div>
+    <div class="season-card spring2">
+      <div class="season-name">🌸 Spring (Year 2) — mins 17–20</div>
+      <div class="season-stat">
+        <div class="stat-row"><span class="stat-label">Predation risk</span><span class="stat-val risk-med">MODERATE</span></div>
+        <div class="stat-row"><span class="stat-label">Food availability</span><span class="stat-val risk-low">HIGH</span></div>
+        <div class="stat-row"><span class="stat-label">Stamina drain</span><span class="stat-val risk-low">LOW</span></div>
+        <div class="stat-row"><span class="stat-label">Key threat</span><span class="stat-val">Nest predators (FINAL)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 CORE MECHANICS -->
+  <div class="section-break"><span class="section-number">05 —</span><div class="section-line"></div></div>
+  <h2>Core Mechanics</h2>
+
+  <h3>Stamina</h3>
+  <p>Stamina is the game's primary resource. It drains continuously at a rate determined by season and activity. It refills only by eating. The bird cannot sprint, flap aggressively, sing, or defend without stamina cost. At zero stamina, the bird enters a distress state: sluggish movement, no vocalization, increased predator attraction. Prolonged zero stamina = death.</p>
+
+  <p><strong>Stillness is the lowest drain state</strong> — the bird is not using energy, but it is also not eating. Stillness is never free; it is just cheaper than moving. The player must constantly weigh: does the environment justify burning stamina to forage, or is there a threat that makes stillness the better bet?</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Activity</th><th>Stamina Rate</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Still / perched</td><td class="mono risk-low">–0.5×</td><td>Base drain, no activity</td></tr>
+        <tr><td>Hopping / walking</td><td class="mono risk-low">–0.8×</td><td>Slow ground movement</td></tr>
+        <tr><td>Gliding</td><td class="mono risk-low">–0.7×</td><td>Efficient if height available</td></tr>
+        <tr><td>Active flapping</td><td class="mono risk-med">–2.0×</td><td>Fast but costly</td></tr>
+        <tr><td>Sprinting (ground)</td><td class="mono risk-med">–2.5×</td><td>Escape only, brief burst</td></tr>
+        <tr><td>Singing (mate call)</td><td class="mono risk-med">–1.5×</td><td>Also increases visibility</td></tr>
+        <tr><td>Eating</td><td class="mono risk-low">+4.0×</td><td>Refill rate, requires food source</td></tr>
+        <tr><td>Winter modifier</td><td class="mono risk-high">+0.5× all</td><td>All drain rates increase</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Awareness &amp; Stillness</h3>
+  <p>The bird has an <strong>Awareness</strong> stat, invisible to the player but governing predator detection range. Awareness increases while the bird is still and decreases while moving. A still bird on a high perch with good sightlines has dramatically better threat detection than a bird hopping through undergrowth.</p>
+
+  <p>Awareness also functions as stealth: a still bird is harder for predators to detect. Movement — especially rapid movement — generates visual and auditory signatures that attract threats. The optimal play pattern is: <em>move → perch → still → assess → move</em>. Players who skip the perch-and-assess step die more.</p>
+
+  <p>There is no awareness meter on screen. Players must learn to feel it through predator behavior feedback (do they seem agitated? are they scanning?). This is intentional — it rewards observation.</p>
+
+  <h3>Threat System</h3>
+  <p>Threat is communicated via a colored border vignette around the screen. No text, no icons, no meter fill. The border color and pulse rate convey both presence and urgency.</p>
+
+  <div class="threat-demo">
+    <div class="threat-item">
+      <div class="threat-box threat-none">🐦</div>
+      <div class="threat-label">Clear</div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-box threat-low">🐦</div>
+      <div class="threat-label">Nearby</div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-box threat-high">🐦</div>
+      <div class="threat-label">Imminent</div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-box threat-human" style="border: 2px solid rgba(45,27,78,0.4);">🐦</div>
+      <div class="threat-label">Human*</div>
+    </div>
+  </div>
+
+  <p style="font-size:14px; color:var(--feather); font-style:italic;">* Human threats (poison, hunters) produce <strong>no threat border</strong>. Corvid-class only. Death arrives without warning. Players must learn environmental tells: scattered seed near a window (poison), distant vehicle sounds, human silhouette on horizon (hunter). This is ecologically accurate and deliberately brutal.</p>
+
+  <h3>Mate Finding (Adult Phase)</h3>
+  <p>To complete a run, the bird must acquire a mate before the breeding window opens. Mate-finding requires:</p>
+  <ol style="margin: 12px 0 12px 28px; line-height:2;">
+    <li>Reaching a <strong>visible, elevated perch</strong> (detected automatically when in range)</li>
+    <li>Holding B to <strong>sing</strong> — stamina drains at 1.5× while singing</li>
+    <li>Maintaining the song for long enough that a mate responds (duration scales with species — warblers take longest)</li>
+    <li>Not dying while doing it</li>
+  </ol>
+  <p>Singing makes the bird highly visible. The threat border becomes more sensitive while singing. This is the game's central tension made explicit: to breed, you must advertise. To advertise, you must accept exposure. There is no safe place to sing.</p>
+
+  <h3>Nest Defense (Red Light / Green Light)</h3>
+  <p>The final sequence begins once eggs are laid. The bird must:</p>
+  <ul style="margin: 12px 0 12px 28px; line-height:2;">
+    <li><strong>Green light:</strong> Leave the nest to forage. Feed chicks on return (B tap near nest). Chick health drains slowly if unfed.</li>
+    <li><strong>Red light:</strong> Predator detected. Return immediately to nest. Go still. Border pulses. Do not call, do not move.</li>
+    <li><strong>Fail state:</strong> Predator reaches undefended nest, or parent is killed during defense.</li>
+  </ul>
+  <p>Chicks fledge one by one over the final 2–3 minutes. Each chick that successfully leaves the nest is a discrete win moment. Fledge all chicks = perfect run.</p>
+
+  <!-- 06 BIRD CLASSES -->
+  <div class="section-break"><span class="section-number">06 —</span><div class="section-line"></div></div>
+  <h2>Bird Classes &amp; Species</h2>
+
+  <p>There are 11 bird classes in V1. Each class has a unique mechanic, a dedicated biome, and a species unlock tree. Classes are unlocked progressively; species within a class unlock via milestones. All species within a class share the same core mechanic but have distinct stat profiles and visual identities.</p>
+
+  <p>Ecological accuracy governs biome assignment. Where multiple species in a class occupy different biomes (e.g., ravens vs. crows vs. jays within corvids), scale and world-size adjust per species while the biome itself is consistent with real range.</p>
+
+  <div class="class-grid">
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🐦</span>
+        <div>
+          <div class="class-name">Sparrows</div>
+          <div class="class-biome">SUBURBAN EDGE / GRASSLAND</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Starter class. Generalist. Most forgiving stat line.</div>
+      <ul class="species-list">
+        <li>House Sparrow <em>(starter)</em></li>
+        <li>Song Sparrow</li>
+        <li>White-throated Sparrow</li>
+        <li>Fox Sparrow</li>
+        <li>Lincoln's Sparrow <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🖤</span>
+        <div>
+          <div class="class-name">Corvids</div>
+          <div class="class-biome">URBAN / FOREST / MOUNTAIN</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Human predation mechanic (no threat border). Tool use: hold B near objects for environmental interactions. Most adaptable stats but highest ambient danger.</div>
+      <ul class="species-list">
+        <li>Blue Jay <em>(starter)</em></li>
+        <li>American Crow</li>
+        <li class="branch">Fish Crow <em>(urban variant)</em></li>
+        <li>Common Raven <em>(mountain)</em></li>
+        <li>Clark's Nutcracker <em>(high alpine)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🍂</span>
+        <div>
+          <div class="class-name">Thrushes</div>
+          <div class="class-biome">TEMPERATE FOREST</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Song complexity mechanic: longer, more varied songs attract higher-quality mates. Song patterns must be maintained without repetition (rhythm game element on B-hold).</div>
+      <ul class="species-list">
+        <li>American Robin <em>(starter)</em></li>
+        <li>Hermit Thrush</li>
+        <li>Wood Thrush</li>
+        <li>Veery</li>
+        <li>Varied Thrush <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🌿</span>
+        <div>
+          <div class="class-name">Warblers</div>
+          <div class="class-biome">FOREST CANOPY / SHRUBLAND</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Highest agility, smallest size. Mate-finding difficulty: must sustain song longest of any class. Highly vulnerable to window strikes and outdoor cats.</div>
+      <ul class="species-list">
+        <li>Yellow Warbler <em>(starter)</em></li>
+        <li>Common Yellowthroat</li>
+        <li>Black-throated Blue Warbler</li>
+        <li>Blackburnian Warbler</li>
+        <li>Kirtland's Warbler <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🔵</span>
+        <div>
+          <div class="class-name">Herons</div>
+          <div class="class-biome">WETLAND / RIVERINE</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Patience fishing mechanic: stillness fills a strike gauge; premature movement resets it. Extremely slow on ground, powerful in air. Longest stamina bar.</div>
+      <ul class="species-list">
+        <li>Great Blue Heron <em>(starter)</em></li>
+        <li>Green Heron</li>
+        <li>Black-crowned Night Heron</li>
+        <li>Tricolored Heron <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🦅</span>
+        <div>
+          <div class="class-name">Accipiters</div>
+          <div class="class-biome">MIXED FOREST</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Hunter class. B-button triggers a pursuit dive on prey. Prey species are procedurally spawned small birds — you are now the threat. Threat border still applies (larger raptors, great horned owls).</div>
+      <ul class="species-list">
+        <li>Sharp-shinned Hawk <em>(starter)</em></li>
+        <li>Cooper's Hawk</li>
+        <li>Northern Goshawk <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🦆</span>
+        <div>
+          <div class="class-name">Buteos</div>
+          <div class="class-biome">OPEN COUNTRY / PRAIRIE</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Thermal soaring: hold A at altitude to lock into thermals, gaining height with no stamina cost. Mastery of thermal navigation dramatically reduces stamina expenditure.</div>
+      <ul class="species-list">
+        <li>Red-tailed Hawk <em>(starter)</em></li>
+        <li>Broad-winged Hawk</li>
+        <li>Ferruginous Hawk <em>(rare)</em></li>
+        <li>Rough-legged Hawk <em>(winter only)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🎭</span>
+        <div>
+          <div class="class-name">Mimids</div>
+          <div class="class-biome">SHRUBLAND / SUBURBAN</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Mimicry: B-hold cycles through learned calls (alarm calls of other species, territorial calls, ambient sounds). Using the right call in the right context provides tactical advantages (scatter threats, attract prey attention).</div>
+      <ul class="species-list">
+        <li>Northern Mockingbird <em>(starter)</em></li>
+        <li>Gray Catbird</li>
+        <li>Brown Thrasher <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🌀</span>
+        <div>
+          <div class="class-name">Vultures</div>
+          <div class="class-biome">OPEN SCRUBLAND / ARID</div>
+        </div>
+      </div>
+      <div class="class-mechanic">No hunting required: stamina refills from carcasses (persistent objects in biome). Longest stamina bar by far. Unique threat: lead poisoning from rifle-shot carcasses (no threat border, like corvid human predation).</div>
+      <ul class="species-list">
+        <li>Turkey Vulture <em>(starter)</em></li>
+        <li>Black Vulture</li>
+        <li>California Condor <em>(rare)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🕊️</span>
+        <div>
+          <div class="class-name">Pigeons</div>
+          <div class="class-biome">URBAN / COASTAL CLIFFS</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Speed burst: double-tap A for a brief explosive sprint/flight. Fastest class in short bursts, average otherwise. Urban biome introduces unique hazards (windows, traffic, traps, Peregrine Falcons).</div>
+      <ul class="species-list">
+        <li>Rock Pigeon <em>(starter)</em></li>
+        <li>Band-tailed Pigeon</li>
+        <li>Mourning Dove <em>(variant)</em></li>
+        <li>Passenger Pigeon <em>(memorial species, cosmetic)</em></li>
+      </ul>
+    </div>
+
+    <div class="class-card">
+      <div class="class-card-header">
+        <span class="class-icon">🌊</span>
+        <div>
+          <div class="class-name">Gulls &amp; Pelicans</div>
+          <div class="class-biome">COASTAL / MARINE</div>
+        </div>
+      </div>
+      <div class="class-mechanic">Gulls: opportunistic theft (B near another bird eating = kleptoparasitism attempt, risk/reward). Pelicans: dive-fishing, similar to heron but aerial — hold altitude, release to plunge.</div>
+      <ul class="species-list">
+        <li>Herring Gull <em>(starter, gulls)</em></li>
+        <li>Laughing Gull</li>
+        <li>Glaucous Gull <em>(rare)</em></li>
+        <li>Brown Pelican <em>(starter, pelicans)</em></li>
+        <li>American White Pelican</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 07 BIOMES -->
+  <div class="section-break"><span class="section-number">07 —</span><div class="section-line"></div></div>
+  <h2>Biomes &amp; Environments</h2>
+
+  <p>Each class has a primary biome. Biomes are procedurally generated per run using a seed. Generation guarantees: sufficient food density per season, at least one viable nest site, at least one high-awareness perch location, and class-appropriate threat population. No two runs produce identical layouts.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Biome</th><th>Classes</th><th>Key Features</th><th>Seasonal Signature</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Suburban Edge</strong></td>
+          <td class="mono">Sparrows, Warblers, Pigeons, Mimids</td>
+          <td>Yards, feeders, cats, windows, cars</td>
+          <td>Lawnmowers in summer, leaf piles in fall, feeders in winter</td>
+        </tr>
+        <tr>
+          <td><strong>Temperate Forest</strong></td>
+          <td class="mono">Thrushes, Accipiters, Corvids (partial)</td>
+          <td>Dense canopy, leaf litter, snags, undergrowth</td>
+          <td>Bloom in spring, shade in summer, color in fall, bare branches in winter</td>
+        </tr>
+        <tr>
+          <td><strong>Wetland / Riverine</strong></td>
+          <td class="mono">Herons, Gulls (partial)</td>
+          <td>Shallows, reeds, slow current, fish</td>
+          <td>Frogs in spring, high water in summer, low water in fall, ice in winter</td>
+        </tr>
+        <tr>
+          <td><strong>Open Country / Prairie</strong></td>
+          <td class="mono">Buteos</td>
+          <td>Fence posts, thermals, rodent population cycles</td>
+          <td>Tall grass in summer, harvest in fall, snow-covered in winter</td>
+        </tr>
+        <tr>
+          <td><strong>Mountain / Alpine</strong></td>
+          <td class="mono">Corvids (raven, nutcracker), Buteos (partial)</td>
+          <td>Rock faces, conifers, altitude sickness analog (stamina drain increase above treeline)</td>
+          <td>Snowmelt in spring, thunderstorms in summer, early snow in fall</td>
+        </tr>
+        <tr>
+          <td><strong>Urban Core</strong></td>
+          <td class="mono">Corvids (crow), Pigeons</td>
+          <td>Buildings, traffic, trash, Peregrine Falcons, humans, poison</td>
+          <td>Construction noise in summer, holiday crowds in winter</td>
+        </tr>
+        <tr>
+          <td><strong>Coastal / Marine</strong></td>
+          <td class="mono">Gulls, Pelicans</td>
+          <td>Tide cycles, fishing boats, beach crowds, offshore wind</td>
+          <td>Nesting colonies in spring, tourist density in summer, storms in fall</td>
+        </tr>
+        <tr>
+          <td><strong>Arid Scrubland</strong></td>
+          <td class="mono">Vultures</td>
+          <td>Carcass spawns, thermals, lead contamination sites</td>
+          <td>Heat shimmer in summer, minimal seasonal change, rare winter rains</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Scale Variation</h3>
+  <p>World scale is consistent within each biome but adjusted between species of dramatically different sizes within the same class. A Clark's Nutcracker occupying alpine habitat has a meaningfully smaller effective territory than a Common Raven in the same mountain biome — the world is the same, the bird's range within it differs. This is expressed through stamina cost of transit, not map size reduction.</p>
+
+  <p>Accipiters illustrate the other direction: a Sharp-shinned Hawk operates at the scale of a forest thicket; a Northern Goshawk requires a much larger territory to sustain. Prey density and range adjust accordingly.</p>
+
+  <!-- 08 THREATS -->
+  <div class="section-break"><span class="section-number">08 —</span><div class="section-line"></div></div>
+  <h2>Predators &amp; Threats</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Threat</th><th>Classes Affected</th><th>Detection</th><th>Behavior Pattern</th><th>Season Peak</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Sharp-shinned Hawk</strong></td>
+          <td class="mono">Sparrows, Warblers, Thrushes, Mimids</td>
+          <td class="highlight">Border (red)</td>
+          <td>Ambush from cover. Fast, erratic flight. Triggered by movement.</td>
+          <td>Fall migration</td>
+        </tr>
+        <tr>
+          <td><strong>Cooper's Hawk</strong></td>
+          <td class="mono">Most small-medium birds</td>
+          <td class="highlight">Border (red)</td>
+          <td>Sustained pursuit. Does not give up quickly. Urban/suburban.</td>
+          <td>Year-round</td>
+        </tr>
+        <tr>
+          <td><strong>Great Horned Owl</strong></td>
+          <td class="mono">All classes</td>
+          <td class="highlight">Border (amber, dusk only)</td>
+          <td>Nocturnal ambush. Appears only during dusk/night transitions.</td>
+          <td>Winter, early spring</td>
+        </tr>
+        <tr>
+          <td><strong>Peregrine Falcon</strong></td>
+          <td class="mono">Pigeons, Gulls, Corvids (urban)</td>
+          <td class="highlight">Border (red, fast pulse)</td>
+          <td>High-altitude stoop. Near-instant kill. Audio tell: distant screech.</td>
+          <td>Spring, fall</td>
+        </tr>
+        <tr>
+          <td><strong>Domestic Cat</strong></td>
+          <td class="mono">Sparrows, Warblers, Thrushes, Mimids</td>
+          <td class="highlight">Border (amber)</td>
+          <td>Slow stalk, sudden lunge. Hides in undergrowth. Stationary near feeders.</td>
+          <td>Summer (kittens season)</td>
+        </tr>
+        <tr>
+          <td><strong>American Crow</strong></td>
+          <td class="mono">Sparrows, Warblers, Thrushes (nest predation)</td>
+          <td class="highlight">Border (amber)</td>
+          <td>Nest raider primarily. Targets eggs/chicks during Spring 2. Mob-able with alarm call.</td>
+          <td>Spring 2</td>
+        </tr>
+        <tr>
+          <td><strong>Common Raccoon</strong></td>
+          <td class="mono">Ground-nesting species</td>
+          <td class="highlight">Border (amber)</td>
+          <td>Nocturnal nest predator. Approaches slowly. Repelled by extended alarm calls (stamina cost).</td>
+          <td>Spring, Summer</td>
+        </tr>
+        <tr>
+          <td><strong>Eastern Fox Squirrel</strong></td>
+          <td class="mono">Corvids (cache competition)</td>
+          <td class="mono">None</td>
+          <td>Competes for food caches. Not lethal. Increases food scarcity.</td>
+          <td>Fall</td>
+        </tr>
+        <tr>
+          <td><strong>Human (Hunter)</strong></td>
+          <td class="mono">Corvids only</td>
+          <td class="mono risk-high">NONE</td>
+          <td>Appears at range. Instantaneous death on proximity. Environmental tells: orange vests, gunshot audio from adjacent territory.</td>
+          <td>Fall (hunting season)</td>
+        </tr>
+        <tr>
+          <td><strong>Poison (window/bait)</strong></td>
+          <td class="mono">Corvids, Vultures</td>
+          <td class="mono risk-high">NONE</td>
+          <td>Scattered seed near windows triggers window strike risk. Baited traps appear as food. Death is delayed 3–5 seconds after consumption (enough to realize).</td>
+          <td>Year-round</td>
+        </tr>
+        <tr>
+          <td><strong>Starvation</strong></td>
+          <td class="mono">All classes</td>
+          <td class="highlight">Screen desaturation</td>
+          <td>Gradual. Screen slowly loses color as stamina approaches zero. Full desaturation = death imminent.</td>
+          <td>Winter</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout red">
+    <div class="callout-label">Design Note — Threat Asymmetry</div>
+    <p style="margin-bottom:0">The absence of threat border for human threats (hunters, poison, lead) is intentional and should not be softened. These threats exist to teach ecological reality: for corvids and vultures, human activity is the most lethal threat precisely because it arrives without warning. The first death to poison should feel unfair. The second death to poison is the player's fault. This is the game's argument.</p>
+  </div>
+
+  <!-- 09 PROGRESSION -->
+  <div class="section-break"><span class="section-number">09 —</span><div class="section-line"></div></div>
+  <h2>Progression &amp; Unlocks</h2>
+
+  <p>Nothing carries between runs except unlocks. No stat bonuses, no persistent items, no remembered map layouts. The only advantage an experienced player has is knowing how the world works. Unlocks are purely milestone-gated: the game tracks achievements across all runs and unlocks species/classes when conditions are met.</p>
+
+  <p>The milestone system is designed so that players naturally unlock content through skilled play, not grinding. A player who survives to adulthood consistently will unlock additional sparrow species within a few sessions. A player who completes a full run will unlock the next bird class.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Unlock</th><th>Milestone Condition</th><th>Tier</th></tr></thead>
+      <tbody>
+        <tr><td>Song Sparrow</td><td>Survive to adulthood (mins 7+) in any run</td><td><span class="milestone-tier tier-bronze">BRONZE</span></td></tr>
+        <tr><td>White-throated Sparrow</td><td>Survive a full Winter (reach min 17)</td><td><span class="milestone-tier tier-bronze">BRONZE</span></td></tr>
+        <tr><td>American Robin (Thrushes)</td><td>Successfully find a mate in any run</td><td><span class="milestone-tier tier-bronze">BRONZE</span></td></tr>
+        <tr><td>Yellow Warbler (Warblers)</td><td>Fledge at least one chick (complete a run)</td><td><span class="milestone-tier tier-silver">SILVER</span></td></tr>
+        <tr><td>Blue Jay (Corvids)</td><td>Die to a human threat (corvid-adjacent species first)</td><td><span class="milestone-tier tier-bronze">BRONZE</span></td></tr>
+        <tr><td>American Crow</td><td>Complete a run as Blue Jay</td><td><span class="milestone-tier tier-silver">SILVER</span></td></tr>
+        <tr><td>Common Raven</td><td>Survive a Fall hunting season as any corvid</td><td><span class="milestone-tier tier-gold">GOLD</span></td></tr>
+        <tr><td>Great Blue Heron (Herons)</td><td>Catch 10 fish across any number of runs</td><td><span class="milestone-tier tier-silver">SILVER</span></td></tr>
+        <tr><td>Sharp-shinned Hawk (Accipiters)</td><td>Escape 5 raptor attacks across any runs</td><td><span class="milestone-tier tier-silver">SILVER</span></td></tr>
+        <tr><td>Red-tailed Hawk (Buteos)</td><td>Complete a run as any accipiter</td><td><span class="milestone-tier tier-gold">GOLD</span></td></tr>
+        <tr><td>Turkey Vulture (Vultures)</td><td>Die to lead poisoning (any eligible species)</td><td><span class="milestone-tier tier-silver">SILVER</span></td></tr>
+        <tr><td>Rock Pigeon (Pigeons)</td><td>Die to a window strike 3 times</td><td><span class="milestone-tier tier-bronze">BRONZE</span></td></tr>
+        <tr><td>Northern Mockingbird (Mimids)</td><td>Fledge a full nest (all chicks survive)</td><td><span class="milestone-tier tier-gold">GOLD</span></td></tr>
+        <tr><td>Herring Gull (Gulls)</td><td>Survive a coastal storm event</td><td><span class="milestone-tier tier-silver">SILVER</span></td></tr>
+        <tr><td>Brown Pelican</td><td>Fledge a nest as any gull species</td><td><span class="milestone-tier tier-gold">GOLD</span></td></tr>
+        <tr><td>California Condor</td><td>Complete 5 full runs across any species</td><td><span class="milestone-tier tier-platinum">PLATINUM</span></td></tr>
+        <tr><td>Passenger Pigeon <em>(memorial)</em></td><td>Complete a run as every species in any single class</td><td><span class="milestone-tier tier-platinum">PLATINUM</span></td></tr>
+        <tr><td>Kirtland's Warbler <em>(rare)</em></td><td>Complete 3 full runs as warblers</td><td><span class="milestone-tier tier-platinum">PLATINUM</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">Design Principle</div>
+    <p style="margin-bottom:0">Several unlocks are triggered by dying in specific ways (poison, window strike, hunter). This turns "bad deaths" into progression moments. A player's first window-strike death unlocks pigeons. This reframes frustration as discovery and keeps the emotional tone light even in brutal moments.</p>
+  </div>
+
+  <!-- 10 CAMERA -->
+  <div class="section-break"><span class="section-number">10 —</span><div class="section-line"></div></div>
+  <h2>Camera &amp; Presentation</h2>
+
+  <p>The camera is third-person follow with full right-stick control. The player should always be able to look around independently of movement — this is core to the awareness mechanic. A bird that can look without moving is a safer bird.</p>
+
+  <p>The camera distance adjusts contextually: tighter during ground foraging and nest sequences, pulled back during flight. There should be a "flight awe" camera mode that kicks in when the bird achieves significant altitude or speed — a slight slow-motion + camera drift effect that communicates the beauty of the moment without interrupting play. This is the game saying: <em>look at this.</em></p>
+
+  <h3>Visual Direction</h3>
+  <p>Bright, saturated, slightly stylized — not photorealistic, not cartoon. Think the color palette of a quality field guide illustration brought into 3D. Environments should be rich with detail but readable: the player should always be able to identify food, threat, and shelter at a glance through color language.</p>
+
+  <ul style="margin: 12px 0 16px 28px; line-height:2.2;">
+    <li><strong>Food:</strong> Warm amber glow at close range (subtle, not UI)</li>
+    <li><strong>Nest sites:</strong> Soft green shimmer</li>
+    <li><strong>Safe perches:</strong> No marker — players must judge visually</li>
+    <li><strong>Predators:</strong> No marker — threat border only</li>
+    <li><strong>Seasons:</strong> Communicated through light temperature, foliage, weather, ambient sound</li>
+  </ul>
+
+  <p>Starvation is communicated through progressive desaturation of the entire image — the world literally loses color as the bird weakens. Full-color world = healthy bird. Sepia world = feed immediately.</p>
+
+  <h3>HUD</h3>
+  <p>Near-zero. The only persistent screen elements are:</p>
+  <ul style="margin: 12px 0 16px 28px; line-height:2;">
+    <li>Threat border vignette (color + pulse rate)</li>
+    <li>World desaturation (stamina proxy)</li>
+    <li>Contextual button prompts — appear for 1–2 seconds when a new context is available for the first time only; never repeat after the player has used an action once</li>
+  </ul>
+  <p>No stamina bar, no health bar, no minimap, no waypoints, no timers.</p>
+
+  <!-- 11 AUDIO -->
+  <div class="section-break"><span class="section-number">11 —</span><div class="section-line"></div></div>
+  <h2>Audio Direction</h2>
+
+  <p>Audio carries enormous narrative and mechanical weight given the minimal HUD. The soundscape must be rich, ecologically accurate, and tactically legible. Players should learn to read threats by sound before they read them visually.</p>
+
+  <ul style="margin: 12px 0 16px 28px; line-height:2.2;">
+    <li><strong>Alarm calls from other species</strong> are the earliest threat warning — before the border activates. A distant chickadee alarm call means something is moving in that direction.</li>
+    <li><strong>The bird's own vocalizations</strong> are species-accurate recordings or high-quality recreations. Song complexity is audibly meaningful for thrushes and mimids.</li>
+    <li><strong>Seasonal ambient layers</strong> shift dynamically: spring insects and frogs, summer heat buzz, fall wind and leaf rustle, winter silence.</li>
+    <li><strong>Stamina distress</strong> is signaled by a subtle change in the bird's breathing/wing sounds — a shortness that mirrors the visual desaturation.</li>
+    <li><strong>Death sounds</strong> are brief and non-graphic. A small, surprised beat. Then silence. Then the death card.</li>
+    <li><strong>Nest fledge</strong> is the loudest, most joyful moment in the game. Each chick that leaves the nest triggers a brief musical swell.</li>
+  </ul>
+
+  <div class="callout green">
+    <div class="callout-label">Music Direction</div>
+    <p style="margin-bottom:0">Score should be dynamic and season-responsive, not looping background music. Sparse in winter (solo instrument, long silences), full and layered in spring. Tempo tracks threat level subtly — not obviously, not mechanically. The Katamari influence lives here: the music should be playful and strange and occasionally overwhelming in the best possible way.</p>
+  </div>
+
+  <!-- 12 TECHNICAL -->
+  <div class="section-break"><span class="section-number">12 —</span><div class="section-line"></div></div>
+  <h2>Technical Notes</h2>
+
+  <h3>Engine</h3>
+  <p>Unreal Engine. Target platforms: PC (Steam), PS5, Xbox Series X/S, Nintendo Switch. Switch performance budget is the binding constraint for all rendering decisions.</p>
+
+  <h3>Procedural Generation</h3>
+  <p>Per-run seed generation for biome layout. Required guarantees per generated map: food source density within survivable stamina range of spawn point, at least one high-sightline perch within 30 seconds of spawn, nest site options (minimum 2) within adult territory range, appropriate predator population density per season. Generation must not create maps where the win condition is mechanically impossible.</p>
+
+  <h3>Scale &amp; World Size</h3>
+  <p>The effective play area is intentionally small — this is a bird's world, not a human one. A sparrow's territory in suburban habitat is roughly 1–2 acres. The game world should feel dense and full, not vast and empty. Larger species (ravens, herons, buteos) have proportionally larger territories expressed through stamina cost of range, not through larger world geometry.</p>
+
+  <h3>Save State</h3>
+  <p>No mid-run saves. Runs must be completed or abandoned. The milestone/unlock database persists between sessions. No cloud save requirement for V1 but architecture should anticipate it.</p>
+
+  <h3>Accessibility</h3>
+  <p>Fully remappable controls. Colorblind modes must address the threat border (color + pattern/pulse rate should both carry the signal, not color alone). Subtitle support for any voiced UI. Adjustable camera sensitivity.</p>
+
+  <!-- 13 V2 -->
+  <div class="section-break"><span class="section-number">13 —</span><div class="section-line"></div></div>
+  <h2>Out of Scope — V2+</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Rationale for Deferral</th></tr></thead>
+      <tbody>
+        <tr><td>Food caching (Corvids, Woodpeckers)</td><td>Adds a hold-mechanic input layer; solid V2 add for corvids and woodpecker class</td></tr>
+        <tr><td>Woodpecker class</td><td>Drumming/excavation mechanic requires additional input design</td></tr>
+        <tr><td>Migratory species / migration mechanic</td><td>Requires multi-biome run architecture; significant scope addition</td></tr>
+        <tr><td>Multiplayer / co-op</td><td>Deferred to V1 stability; mate-finding mechanic has multiplayer potential</td></tr>
+        <tr><td>Seasonal weather events (hurricanes, blizzards)</td><td>Biome variants; high production cost, clear V2 path</td></tr>
+        <tr><td>Photo mode</td><td>Low dev cost, high marketing value; natural V2 addition</td></tr>
+        <tr><td>Daily seed / challenge runs</td><td>Backend required; strong community feature post-launch</td></tr>
+        <tr><td>Owls class</td><td>Nocturnal-primary class requires significant ambient lighting system work</td></tr>
+        <tr><td>Shorebirds class</td><td>Tidal mechanic complexity; good V2 coastal expansion</td></tr>
+        <tr><td>Waterfowl class</td><td>Swimming locomotion state adds third movement mode; scope for V2</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 14 OPEN QUESTIONS -->
+  <div class="section-break"><span class="section-number">14 —</span><div class="section-line"></div></div>
+  <h2>Open Questions</h2>
+
+  <p>The following require design decisions before production begins:</p>
+
+  <ol style="margin: 16px 0 16px 28px; line-height:2.4;">
+    <li><strong>Hatchling phase controls:</strong> The bird cannot fly or forage at run start. What does the player actually do for minutes 0–3? Beg-feeding timing on B seems right but needs a designed loop that teaches core mechanics without being tutorial-like.</li>
+    <li><strong>Class unlock order:</strong> Which class is available from session one? Sparrows only, or one from each ecological guild? Recommend: Sparrows (starter), with one raptor class unlockable in the first session (Sharp-shinned via escape milestone).</li>
+    <li><strong>Egg count / chick count:</strong> How many eggs per nest? Recommend species-accurate ranges (sparrows 4–5, herons 3–4, raptors 1–2) but cap at 3 for gameplay clarity. Confirm.</li>
+    <li><strong>Mate persistence:</strong> If the mate is killed during breeding season, can the bird find a second mate, or is the run unwinnable? Recommend: second mate possible but window is short and stamina cost is high.</li>
+    <li><strong>Run clock visibility:</strong> The 20-minute structure is real but invisible. Should there be any clock in the UI — perhaps just a sun/moon arc in the sky — or is purely environmental time the right call?</li>
+    <li><strong>Death card tone:</strong> The post-death illustration style needs a creative brief. Cute-grim? Field-guide-clinical? Recommend aligning with the score artist on this early.</li>
+    <li><strong>Corvid tool use:</strong> Hold B near objects for interactions — what objects, what interactions? Needs a discrete list to avoid scope creep.</li>
+    <li><strong>Switch performance target:</strong> Confirm whether Switch is a day-one platform or post-launch port. This affects procedural generation complexity budget significantly.</li>
+  </ol>
+
+  <hr>
+
+  <div style="text-align:center; padding: 40px 0; color:var(--feather); font-style:italic;">
+    <p style="font-family:'Playfair Display',serif; font-size:22px; color:var(--dusk);">The bird does not know it is in a game.</p>
+    <p style="font-size:15px; margin-top:8px;">It only knows: fly, eat, sing, be still, survive.</p>
+    <p style="font-size:15px;">That's enough.</p>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  <span>BIRD SIMULATOR — GDD v0.1</span>
+  <span>CONFIDENTIAL — FOR INTERNAL USE</span>
+  <span>2026</span>
+</div>
+
+</body>
+</html>
