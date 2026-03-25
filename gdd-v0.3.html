@@ -1588,8 +1588,63 @@
 
   <p>The camera distance adjusts contextually: tighter during ground foraging and nest sequences, pulled back during flight. There should be a "flight awe" camera mode that kicks in when the bird achieves significant altitude or speed — a slight slow-motion + camera drift effect that communicates the beauty of the moment without interrupting play. This is the game saying: <em>look at this.</em></p>
 
+  <p><strong>Softening is a camera property, not a mesh property.</strong> All birds are rendered at full geometric fidelity. Depth of field, motion blur, and focal length are camera-side post-process decisions. This means camera modifications can be meaningful trophies — milestone rewards that change how the player sees the world without altering the world itself.</p>
+
+  <h3>Camera Trophies</h3>
+
+  <p>Camera modifications unlock via milestones and are equippable from a pre-run menu. One active at a time. They are cosmetic in the sense that they don't affect stamina or threat — but they change the felt experience of play meaningfully. Low implementation cost, high player expression value.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Trophy</th><th>Camera Effect</th><th>Unlock Condition</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Peregrine Stoop</strong></td>
+          <td>On takeoff: brief velocity blur + focal lock on target ahead, then snap-release</td>
+          <td>Escape a Peregrine Falcon attack</td>
+          <td>The closest the game gets to first-person. Terrifying for half a second.</td>
+        </tr>
+        <tr>
+          <td><strong>Heron Still</strong></td>
+          <td>Extreme background depth-of-field when fully still. World blurs to soft wash behind sharp foreground.</td>
+          <td>Complete a run as Great Blue Heron</td>
+          <td>Makes stillness visually meditative. The world falls away. The water is everything.</td>
+        </tr>
+        <tr>
+          <td><strong>Murmuration</strong></td>
+          <td>During flocks of 8+: brief cinematic pull-out to wide shot, slow drift, then return</td>
+          <td>Assemble a flock of 10+ species as a Parid</td>
+          <td>The awe camera, triggered socially. The game saying: look what you made.</td>
+        </tr>
+        <tr>
+          <td><strong>Kettle</strong></td>
+          <td>During thermal soaring: slow orbit around the thermal axis, camera banking with the bird</td>
+          <td>Complete a run as Turkey Vulture</td>
+          <td>Makes vulture runs feel genuinely majestic. The sky as home.</td>
+        </tr>
+        <tr>
+          <td><strong>The Warbler Lens</strong></td>
+          <td>Slight chromatic aberration. Slightly. At all times.</td>
+          <td>Undisclosed</td>
+          <td>Something is subtly wrong. Nobody can agree on what. The warbler knows.</td>
+        </tr>
+        <tr>
+          <td><strong>Robin's Eye</strong></td>
+          <td>Default camera. No modification. Clean.</td>
+          <td>Always available</td>
+          <td>Many players will return to this after trying everything else.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">V2 Note</div>
+    <p style="margin-bottom:0"><strong>Night Vision</strong> — desaturated blue tint at dusk, sharpened edges in darkness. Unlock via Owl class. Deferred with Owls to V2.</p>
+  </div>
+
   <h3>Visual Direction</h3>
-  <p>Bright, saturated, slightly stylized — not photorealistic, not cartoon. Think the color palette of a quality field guide illustration brought into 3D. Environments should be rich with detail but readable: the player should always be able to identify food, threat, and shelter at a glance through color language.</p>
+  <p>Photorealistic, Roger Tory Peterson field guide naturalism as the aesthetic north star. Full geometric fidelity in mesh. Softening and stylization are camera decisions, not asset decisions — this means the same world reads differently across species and camera trophies without any additional art cost. See <code>mockups/index.html</code> for Gemini reference renders.</p>
 
   <ul style="margin: 12px 0 16px 28px; line-height:2.2;">
     <li><strong>Food:</strong> Warm amber glow at close range (subtle, not UI)</li>
@@ -1599,16 +1654,21 @@
     <li><strong>Seasons:</strong> Communicated through light temperature, foliage, weather, ambient sound</li>
   </ul>
 
-  <p>Starvation is communicated through progressive desaturation of the entire image — the world literally loses color as the bird weakens. Full-color world = healthy bird. Sepia world = feed immediately.</p>
+  <p>Starvation is communicated through progressive desaturation of the entire image. Full-color world = healthy bird. Sepia world = feed immediately.</p>
+
+  <h3>Death Card &amp; Season Title Card</h3>
+  <p>These are the game's two full-screen UI moments and they are visual opposites of each other.</p>
+  <p><strong>Death card:</strong> Instant desaturation to black and white. Rounded bubble font (Pusheen weight — fat, friendly, slightly naive). White text on transparent: cause-of-death ecology joke. Cheerful typography against stark monochrome. Human first death: no text, no sound, fade to black and white, silence only.</p>
+  <p><strong>Season title card:</strong> Bloom, saturation spike beyond realism. Warm amber-gold inner glow on rounded bubble font — candlelight warmth, not neon. The world announcing itself. You made it.</p>
 
   <h3>HUD</h3>
   <p>Near-zero. The only persistent screen elements are:</p>
   <ul style="margin: 12px 0 16px 28px; line-height:2;">
-    <li>Threat border vignette (color + pulse rate)</li>
+    <li>Threat border vignette (color + pulse rate, bleeds inward from screen edges as soft gradient — not a rectangular outline)</li>
     <li>World desaturation (stamina proxy)</li>
     <li>Fledgling meters — visible only during breeding sequence, one small fill bar per chick, nest-adjacent only</li>
-    <li>Contextual button prompts — appear for 1–2 seconds on first encounter only; never repeat</li>
-    <li>Season title cards — full-screen bloom moment at each seasonal transition; the only deliberate UI interruption</li>
+    <li>Contextual button prompts — appear 1–2 seconds on first encounter only; never repeat</li>
+    <li>Season title cards — full-screen bloom at each seasonal transition; the only deliberate UI interruption</li>
   </ul>
   <p>No stamina bar, no health bar, no minimap, no waypoints, no timers, no achievement popups — except <strong>[SHINY OBJECT]</strong>.</p>
 

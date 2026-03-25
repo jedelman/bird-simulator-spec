@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bird Simulator — Visual Mockups v1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap');
+  :root {
+    --ink: #1a1208; --bone: #f9f5ee; --dusk: #2d1b4e;
+    --gold: #c8902a; --berry: #c0392b; --leaf: #3a6b35;
+    --feather: #7a6a52; --mist: #b8c9ce;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#111; color:#ddd; font-family:'Source Serif 4',serif; }
+  .header { padding:48px; border-bottom:1px solid #333; }
+  .header-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#666; margin-bottom:12px; }
+  h1 { font-family:'Playfair Display',serif; font-size:36px; color:#f9f5ee; }
+  .header-sub { font-size:15px; color:#888; margin-top:8px; font-style:italic; }
+  .mockup { padding:48px; border-bottom:1px solid #222; }
+  .mockup-meta { display:flex; align-items:baseline; gap:16px; margin-bottom:20px; }
+  .mockup-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--berry); letter-spacing:0.15em; }
+  .mockup-title { font-family:'Playfair Display',serif; font-size:24px; color:#f9f5ee; }
+  .mockup img { width:100%; max-width:1000px; display:block; border-radius:4px; }
+  .critique { margin-top:20px; max-width:800px; }
+  .critique-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; }
+  .verdict-ship { color:var(--leaf); }
+  .verdict-pass { color:var(--gold); }
+  .verdict-revise { color:var(--berry); }
+  .critique p { font-size:15px; line-height:1.7; color:#aaa; margin-bottom:8px; }
+  .critique p:last-child { margin-bottom:0; }
+  .revise-prompt { background:#1a1208; border-left:3px solid var(--berry); padding:16px 20px; margin-top:16px; border-radius:0 4px 4px 0; font-size:13px; color:#999; line-height:1.7; }
+  .revise-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--berry); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">Bird Simulator — Visual Development — Round 1</div>
+  <h1>Gemini Mockups</h1>
+  <p class="header-sub">Generated from GDD v0.3 prompts. Directional reference only — not final assets. Gemini watermarks present throughout.</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-meta">
+    <span class="mockup-num">01 —</span>
+    <span class="mockup-title">Title Screen</span>
+  </div>
+  <img src="01-title-screen.png" alt="Title Screen mockup">
+  <div class="critique">
+    <div class="critique-label verdict-pass">✓ Strong — minor notes</div>
+    <p>Composition, winter light, bokeh, and robin posture are all correct. Bird occupies lower-left third as specced; sky fills upper two-thirds. Feels appropriately vast and quiet.</p>
+    <p>Robin breast reads slightly muted — in-engine push the red. It's the only saturated element and should earn its presence more. Breath vapor visible, which was not specified but is correct and should be kept.</p>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-meta">
+    <span class="mockup-num">02 —</span>
+    <span class="mockup-title">Death Card — HAWK LUNCH</span>
+  </div>
+  <img src="02-death-card.png" alt="Death Card mockup">
+  <div class="critique">
+    <div class="critique-label verdict-ship">✓✓ Ship as reference</div>
+    <p>This is the best render of the set. Split-frame before/after lands exactly as designed. Typography is the right weight — cheerful Pusheen-style against a stark monochrome scene. The still robin in snow is peaceful, not graphic. The contrast between tone and image is intentionally wrong in the right way.</p>
+    <p>Note: right panel should be full desaturated, not merely dark — the scene has retained slight warmth in the bird's breast feathers. In-engine: full black and white, no warm bleed.</p>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-meta">
+    <span class="mockup-num">03 —</span>
+    <span class="mockup-title">Winter Season Title Card</span>
+  </div>
+  <img src="03-winter-title-card.png" alt="Winter Title Card mockup">
+  <div class="critique">
+    <div class="critique-label verdict-revise">△ Second pass recommended</div>
+    <p>Scene and robin silhouette are perfect — the tiny bird against the vast winter sky reads exactly right. Orange horizon against deep blue is the correct palette.</p>
+    <p>Font went script/cursive rather than rounded bubble. Closer to Pusheen than expected but slightly too elegant — needs to feel rounder and friendlier, matching the death card typography weight. Glow reads electric/neon rather than warm bloom. Specify warmer inner glow, less LED.</p>
+    <div class="revise-prompt">
+      <div class="revise-label">Revised prompt note</div>
+      Same scene. Change "WINTER" typography to thick rounded bubble font matching Hello Kitty / Pusheen weight — not script, not cursive. The letters should be fat, round, and slightly naive. Inner glow: warm amber-gold (#c8902a), not white-electric. Glow should feel like candlelight, not neon signage. Everything else identical.
+    </div>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-meta">
+    <span class="mockup-num">04 —</span>
+    <span class="mockup-title">HUD Threat States</span>
+  </div>
+  <img src="04-hud-threat-states.png" alt="HUD Threat States mockup">
+  <div class="critique">
+    <div class="critique-label verdict-pass">✓ Strong — implementation note</div>
+    <p>Panel 4 is the standout and landed perfectly — human figure with no border is genuinely unsettling, looks exactly like Panel 1. This is the design working as intended.</p>
+    <p>Panel 3 cat placement is correct. Panel 2 amber border reads slightly too much like a picture frame outline rather than a screen vignette. In-engine: border should bleed inward from screen edges as a soft gradient, not sit as a hard rectangular outline. Panel 4 human should be slightly more ambiguous — a rifle is visible in this render which telegraphs danger. The point is that nothing telegraphs danger.</p>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-meta">
+    <span class="mockup-num">05 —</span>
+    <span class="mockup-title">World Scale Comparison</span>
+  </div>
+  <img src="05-world-scale.png" alt="World Scale Comparison mockup">
+  <div class="critique">
+    <div class="critique-label verdict-pass">✓ Warbler side ships — Raven side needs pass</div>
+    <p>Warbler/cat/dandelion POV is exactly right. Claustrophobic, dense, intimate. The cat at that scale is correctly enormous and threatening. The dandelion at eye level is perfect. This side is reference-ready.</p>
+    <p>Raven side went too aerial/simulation — reads like a map rather than a felt POV. Needs more sky, lower angle, sense of the bird in flight through space rather than above it. The crow is correctly small in frame but the camera angle is wrong.</p>
+    <div class="revise-prompt">
+      <div class="revise-label">Revised raven prompt note</div>
+      Raven POV: camera behind and slightly below the raven at altitude, angled forward — we see the raven's wings in the lower portion of frame, the suburban landscape spreading below and ahead. Sky fills 40% of frame. The bird is flying through space, not surveying from above. Same neighborhood assets as warbler panel, same scale differential, different felt angle.
+    </div>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-meta">
+    <span class="mockup-num">06 —</span>
+    <span class="mockup-title">Flock Awareness Geometry</span>
+  </div>
+  <img src="06-flock-awareness.png" alt="Flock Awareness Geometry mockup">
+  <div class="critique">
+    <div class="critique-label verdict-ship">✓✓ Ship as reference</div>
+    <p>Strongest concept render of the set. Circular vs. elliptical awareness field reads immediately and intuitively. The warm gold glow quality is exactly right — environmental and organic, not UI. Autumn canopy backdrop is correct for the mechanic's primary season.</p>
+    <p>Your brother can implement the shader directly from this reference. The glow should be a soft additive particle system or post-process volume, not a UI overlay. The birds in the spread flock are correctly the same species mix as the tight cluster.</p>
+  </div>
+</div>
+
+</body>
+</html>
