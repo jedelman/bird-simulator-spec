@@ -1253,10 +1253,54 @@
     </table>
   </div>
 
-  <h3>Scale Variation</h3>
-  <p>World scale is consistent within each biome but adjusted between species of dramatically different sizes within the same class. A Clark's Nutcracker occupying alpine habitat has a meaningfully smaller effective territory than a Common Raven in the same mountain biome — the world is the same, the bird's range within it differs. This is expressed through stamina cost of transit, not map size reduction.</p>
+  <h3>World Scale System</h3>
 
-  <p>Accipiters illustrate the other direction: a Sharp-shinned Hawk operates at the scale of a forest thicket; a Northern Goshawk requires a much larger territory to sustain. Prey density and range adjust accordingly.</p>
+  <p>World size and camera distance scale with the physical size of the bird. The asset library, interaction logic, and mesh vocabulary are identical across all species — a dumpster is a dumpster, a tree is a tree. What changes is how much world exists, how far the camera pulls back, and how sparsely objects are distributed across the generated terrain. <strong>Interaction density remains constant</strong>: every bird encounters roughly the same number of food sources, threats, and interactables per unit of stamina-travel. The raven's world is simply much larger.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Size Tier</th><th>Example Species</th><th>Relative World Size</th><th>Camera Distance</th><th>Object Density</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tiny</strong></td><td class="mono">Warblers, House Sparrow</td><td class="mono">1× (baseline)</td><td class="mono">Close / intimate</td><td class="mono">Dense — every bush matters</td></tr>
+        <tr><td><strong>Small</strong></td><td class="mono">Robin, Song Sparrow, Sharp-shinned Hawk</td><td class="mono">3–5×</td><td class="mono">Neighbourhood scale</td><td class="mono">Moderate</td></tr>
+        <tr><td><strong>Medium</strong></td><td class="mono">Crow, Pigeon, Cooper's Hawk, Mockingbird</td><td class="mono">8–12×</td><td class="mono">Block / district scale</td><td class="mono">Sparse but readable</td></tr>
+        <tr><td><strong>Large</strong></td><td class="mono">Heron, Red-tailed Hawk, Raven, Goshawk</td><td class="mono">15–20×</td><td class="mono">Pulled back — sky visible</td><td class="mono">Spread — landmarks as waypoints</td></tr>
+        <tr><td><strong>Very Large</strong></td><td class="mono">Pelican, Turkey Vulture, Condor</td><td class="mono">25–30×</td><td class="mono">Cinematic — altitude matters</td><td class="mono">Thin — finding food is the challenge</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>This makes species unlock sequencing meaningful beyond stat progression. Playing a warbler after a raven feels genuinely claustrophobic. Playing a raven after a sparrow feels like the world has opened up. The same biome assets read completely differently at each scale — a suburban backyard that feels enormous to a warbler is a glance-and-pass to a crow.</p>
+
+  <p><strong>Mesh density reduction at large scales:</strong> At Large and Very Large tiers, procedural generation reduces fine-detail mesh density (ground cover, undergrowth, small debris) to maintain performance. Landmark objects — trees, structures, water, interactables — remain consistent. The world reads more spare at raven scale, which is also ecologically correct: ravens navigate by landmark, not by foraging through undergrowth.</p>
+
+  <div class="callout red">
+    <div class="callout-label">Technical Challenge — Flagged</div>
+    <p style="margin-bottom:0">A raven biome at 30× sparrow scale with consistent interaction density requires dynamic terrain and asset streaming — static scene loading is not viable at this scale differential. This is an architectural decision affecting the entire generation pipeline and should be confirmed before production begins on any Large-tier species. We are confident this is solvable; we flag it so it is scoped correctly from day one.</p>
+  </div>
+
+  <h3>Threat Viability by Size Tier</h3>
+
+  <p>Predator threat logic does not change between species — patrol routes, detection radii, and attack behaviors are constant. What changes is ecological viability: a sharp-shinned hawk does not hunt ravens. A domestic cat is not a credible threat to a great blue heron. The threat border simply does not fire for predators that are non-viable at a given size tier. Players moving up the size ladder will notice familiar threats going quiet — and new ones appearing.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Predator</th><th>Tiny</th><th>Small</th><th>Medium</th><th>Large</th><th>Very Large</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Sharp-shinned Hawk</strong></td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-med">✓ risk</td><td class="mono">—</td><td class="mono">—</td></tr>
+        <tr><td><strong>Cooper's Hawk</strong></td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-med">✓ risk</td><td class="mono">—</td></tr>
+        <tr><td><strong>Peregrine Falcon</strong></td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-med">✓ risk</td><td class="mono">—</td></tr>
+        <tr><td><strong>Great Horned Owl</strong></td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-med">✓ risk</td></tr>
+        <tr><td><strong>Domestic Cat</strong></td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-med">✓ risk</td><td class="mono">—</td><td class="mono">—</td></tr>
+        <tr><td><strong>American Crow</strong></td><td class="risk-high">✓ nest predator</td><td class="risk-high">✓ nest predator</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td></tr>
+        <tr><td><strong>Raccoon</strong></td><td class="risk-high">✓ nest predator</td><td class="risk-high">✓ nest predator</td><td class="risk-med">✓ risk</td><td class="mono">—</td><td class="mono">—</td></tr>
+        <tr><td><strong>Human threats</strong></td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td><td class="risk-high">✓ lethal</td></tr>
+        <tr><td><strong>Starvation</strong></td><td class="risk-high">✓</td><td class="risk-high">✓</td><td class="risk-high">✓</td><td class="risk-high">✓</td><td class="risk-high">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="font-size:14px; color:var(--feather); font-style:italic;">Human threats (poison, hunters, spray, traffic) are viable at every size tier. The world does not get safer as you get bigger. It just gets quieter — and then a hunter appears.</p>
 
   <!-- 08 THREATS -->
   <div class="section-break"><span class="section-number">08 —</span><div class="section-line"></div></div>
@@ -1453,7 +1497,7 @@
   <p>Per-run seed generation for biome layout. Required guarantees per generated map: food source density within survivable stamina range of spawn point, at least one high-sightline perch within 30 seconds of spawn, nest site options (minimum 2) within adult territory range, appropriate predator population density per season. Generation must not create maps where the win condition is mechanically impossible.</p>
 
   <h3>Scale &amp; World Size</h3>
-  <p>The effective play area is intentionally small — this is a bird's world, not a human one. A sparrow's territory in suburban habitat is roughly 1–2 acres. The game world should feel dense and full, not vast and empty. Larger species (ravens, herons, buteos) have proportionally larger territories expressed through stamina cost of range, not through larger world geometry.</p>
+  <p>World size scales with bird size across five tiers (Tiny → Very Large), from 1× baseline for warblers to 25–30× for vultures and condors. Camera distance, object density, and terrain generation density all scale accordingly. Asset meshes and interaction logic are shared across all tiers. See §07 (World Scale System) for the full specification and technical challenge flag.</p>
 
   <h3>Save State</h3>
   <p>No mid-run saves. Runs must be completed or abandoned. The milestone/unlock database persists between sessions. No cloud save requirement for V1 but architecture should anticipate it.</p>
