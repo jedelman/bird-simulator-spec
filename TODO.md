@@ -1,24 +1,10 @@
 # Bird Simulator — TODO / Open Questions
 
-Generated from GDD v0.1. These require design decisions before production begins on affected systems.
-
 ---
 
 ## 🔴 Pre-Production Blockers
 
-- [ ] **Hatchling phase loop (§02, §05)** — Minutes 0–3, bird can't fly or forage. Beg-feeding on B is the seed, but needs a full designed micro-loop that teaches core mechanics without being a tutorial. Biggest design hole in v0.1.
-- [ ] **Switch as day-one vs. post-launch port (§12)** — Binding constraint on procgen complexity budget. Decide before scoping the generation system.
-- [ ] **Corvid tool use object list (§06)** — "Hold B near objects" needs a discrete list of objects and interactions before corvid class enters production. Scope creep risk.
-
----
-
-## 🟡 Design Decisions Needed
-
-- [ ] **Class unlock order (§09)** — What's available from session one? Proposed: Sparrows (default) + Sharp-shinned Hawk unlockable in first session via escape milestone. Confirm.
-- [ ] **Egg/chick count (§05)** — Propose species-accurate ranges capped at 3 for gameplay clarity (sparrows 4–5 → 3, herons 3–4 → 3, raptors 1–2). Confirm.
-- [ ] **Mate killed during breeding season (§05)** — Can player find second mate or is run unwinnable? Proposed: second mate possible, short window, high stamina cost. Confirm.
-- [ ] **Run clock visibility (§04)** — Sun/moon arc in sky sufficient, or is purely environmental time too opaque for new players? Decide tone.
-- [ ] **Death card visual style (§02)** — Cute-grim or field-guide-clinical? Needs creative brief. Align with score/art direction early.
+- [ ] **Corvid tool use — object list (§06)** — Mechanic resolved (rhythm game, God of War style, mega stamina reward). Still need: discrete list of interactable object types per biome (e.g., trash can lid, car mirror, shiny object). Define before corvid class enters production.
 
 ---
 
@@ -34,9 +20,17 @@ Generated from GDD v0.1. These require design decisions before production begins
 - [ ] Owls class (nocturnal lighting system)
 - [ ] Shorebirds class (tidal mechanic)
 - [ ] Waterfowl class (swimming locomotion state)
+- [ ] Nintendo Switch port
 
 ---
 
 ## ✅ Resolved
 
-_(move items here as decisions are made)_
+- [x] **Hatchling/nestling phase** — Cut. Run begins at fledgling. Tighter gameplay, no tutorial phase needed.
+- [x] **Switch target** — Deferred to post-launch port. Not a day-one platform.
+- [x] **Starter species select** — Pokémon-style choice of 3 at session start: House Sparrow, American Robin, Rock Pigeon. All other species/classes unlock via milestones.
+- [x] **Egg/chick count** — Species-accurate ranges confirmed, capped at 3 for gameplay clarity.
+- [x] **Mate killed during breeding** — Second mate possible. Short window, high stamina cost. Rescue mechanic, not a mulligan.
+- [x] **Run clock** — No clock, no UI timer. Purely environmental. "One game you can't speedrun."
+- [x] **Death card design** — Dark Souls "YOU DIED" riff. Black and white, Sanrio-style font. Predation = "{SPECIES} LUNCH". Starvation = "VULTURE FOOD". Human threats: no message first occurrence — fade to black and white, silence. Intentionally jarring. Message appears on subsequent deaths.
+- [x] **Corvid tool use mechanic** — Rhythm game (God of War style). Hold B near interactable object → button sequence prompt → match it → mega stamina reward.
