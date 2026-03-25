@@ -1076,6 +1076,121 @@
 
   </div>
 
+  <h3>Corvid Tool Use — Full Object Reference</h3>
+
+  <p>Corvids are the only class with environmental tool use. The mechanic is consistent: approach an interactable object → hold B → a God of War-style button sequence appears → match it → reward. Sequence complexity scales inversely with the number of corvid NPCs present. More crows = simpler pattern = bigger chaos energy. Solo corvid sequences are hardest.</p>
+
+  <p>Corvid NPCs are ambient in all corvid biomes. They become recruitable by cawing (tap B with no other context active). Nearby corvids get curious and follow. Some interactions — dumpsters, car nutcracking — only unlock once at least one NPC has joined.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Object</th><th>Biome</th><th>Interaction</th><th>Reward</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Ant stick</strong></td>
+          <td class="mono">Forest, Suburban</td>
+          <td>Hold B near twig near anthill → sequence → ants surface</td>
+          <td class="risk-low">Mega stamina (food burst)</td>
+          <td>Solo only. One of the few tool uses with no threat implication.</td>
+        </tr>
+        <tr>
+          <td><strong>Car as nutcracker</strong></td>
+          <td class="mono">Urban, Suburban</td>
+          <td>Hold B near road with nut in range → sequence → wait for car timing → nut cracked</td>
+          <td class="risk-low">Mega stamina (food burst)</td>
+          <td>Requires NPC present or prior unlock. Car timing is ambient hazard — mistimed = death. Clark's Nutcracker variant uses rocks instead.</td>
+        </tr>
+        <tr>
+          <td><strong>Bird feeder lever</strong></td>
+          <td class="mono">Suburban</td>
+          <td>Hold B near feeder mechanism → sequence → seed cascade</td>
+          <td class="risk-low">Mega stamina + bonus seed</td>
+          <td>Triggers cat alert if cat is nearby. Farmer may notice and shoo.</td>
+        </tr>
+        <tr>
+          <td><strong>Dumpster (with friends)</strong></td>
+          <td class="mono">Urban, Suburban</td>
+          <td>Caw to recruit ≥1 NPC → hold B near dumpster → sequence (easier per additional crow) → lid opens</td>
+          <td class="risk-low">Mega stamina + food jackpot</td>
+          <td>Locked until at least one NPC recruited. Sequence difficulty: 4 crows = trivial. 1 crow = hard. Reward scales with difficulty.</td>
+        </tr>
+        <tr>
+          <td><strong>Steal from tourist / picnicker</strong></td>
+          <td class="mono">Urban, Suburban, Coastal</td>
+          <td>Hold B near human eating → sequence → snatch</td>
+          <td class="risk-low">Mega stamina</td>
+          <td>Human reaction: squawking, waving, no lethal threat. Raises ambient human awareness for remainder of run (subtle).</td>
+        </tr>
+        <tr>
+          <td><strong>Steal from hunter</strong></td>
+          <td class="mono">Mountain, Forest (fall)</td>
+          <td>Hold B near hunter with food → sequence → snatch</td>
+          <td class="risk-high">Mega stamina — BUT</td>
+          <td>Trophy hunter reaction: immediate lethal threat, no warning. Indigenous hunter reaction: ambiguous — sometimes nothing happens. Never visually signaled in advance. You learn by watching.</td>
+        </tr>
+        <tr>
+          <td><strong>Scarecrow</strong></td>
+          <td class="mono">Farm / Suburban edge</td>
+          <td>Approach scarecrow → threat border fires → nothing happens</td>
+          <td class="mono">—</td>
+          <td>Not a tool use. A lesson. Border-conditioned players flee every time. Observant players eventually stay. Scarecrow is inert. The fear was yours.</td>
+        </tr>
+        <tr>
+          <td><strong>Shiny object</strong></td>
+          <td class="mono">All corvid biomes</td>
+          <td>Hold B near foil / coin / wrapper / glass → sequence → pick up, carry briefly, drop</td>
+          <td class="risk-high">Stamina cost only (90%)</td>
+          <td>1-in-10 chance: Dark Souls achievement overlay fires — <strong>[SHINY OBJECT]</strong> — and a small stamina bump is awarded. The other nine times: nothing. Crow happy regardless.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Farmer Ecology — Seasonal Reference</h3>
+
+  <p>The farmer is one of the richest environmental systems in the game for corvids and adjacent species. Farmers are not simply threats — they are a seasonal risk/reward landscape. Learning the farmer's schedule is the corvid equivalent of learning a patrol route.</p>
+
+  <div class="callout red">
+    <div class="callout-label">Spray = Silent Poison</div>
+    <p style="margin-bottom:0">Crop-edge insects near a recently sprayed field are a food source with no visible warning. No threat border. Death is delayed 3–5 seconds after eating — enough to register the cause. First occurrence: silence, no message. Same mechanic as hunter poison. This is not an accident — it is the same human indifference, different context.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Season</th><th>Farmer Activity</th><th>Food Opportunity</th><th>Threat Level</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Spring</strong></td>
+          <td>Soil turning, planting, broadcast seed</td>
+          <td class="risk-low">Worms (turned soil), broadcast seed — both high yield</td>
+          <td class="risk-med">Moderate</td>
+          <td>Farmer active and present. Scarecrow deployed. Turned soil visible as dark earth patches.</td>
+        </tr>
+        <tr>
+          <td><strong>Summer</strong></td>
+          <td>Crop maintenance, pesticide spraying</td>
+          <td class="risk-med">Crop-edge insects (moderate yield, silent poison risk)</td>
+          <td class="risk-high">High</td>
+          <td>Farmer frequently present. Spray = no-warning death. Highest ambient danger of any food source in the game.</td>
+        </tr>
+        <tr>
+          <td><strong>Fall</strong></td>
+          <td>Harvest — farmer busy and distracted</td>
+          <td class="risk-low">Grain spill, chaff — abundant, low risk</td>
+          <td class="risk-low">Low–moderate</td>
+          <td>Best corvid foraging season. Farmer distracted by machinery. Scarecrow still present but farmer rarely chases.</td>
+        </tr>
+        <tr>
+          <td><strong>Winter</strong></td>
+          <td>Dormant. Occasional livestock feeding.</td>
+          <td class="risk-med">Livestock feed grain (barn access via tool use sequence)</td>
+          <td class="risk-low">Low</td>
+          <td>Farmer rarely outside. Barn = enclosed space with cat risk. High reward, moderate danger. Tool use required to enter.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <!-- 07 BIOMES -->
   <div class="section-break"><span class="section-number">07 —</span><div class="section-line"></div></div>
   <h2>Biomes &amp; Environments</h2>
@@ -1372,13 +1487,9 @@
   <div class="section-break"><span class="section-number">14 —</span><div class="section-line"></div></div>
   <h2>Open Questions</h2>
 
-  <p>One design decision remains open before production begins on affected systems:</p>
+  <p>All design questions from v0.1 and v0.2 are now resolved. See TODO.md for full resolution log and V2 backlog.</p>
 
-  <ol style="margin: 16px 0 16px 28px; line-height:2.4;">
-    <li><strong>Corvid tool use — interactable object list (§06):</strong> The mechanic is resolved (rhythm game, God of War style, mega stamina reward on successful sequence). Still needed: a discrete list of interactable object types per biome. Candidate objects: trash can lid, car mirror, reflective window, vending machine button, dumpster latch, shiny coin, traffic cone. Define before corvid class enters production.</li>
-  </ol>
-
-  <p style="color:var(--feather); font-style:italic; font-size:15px;">All other v0.1 open questions resolved. See TODO.md for full resolution log.</p>
+  <p style="color:var(--feather); font-style:italic; font-size:15px;">Next: adversarial design pass.</p>
 
   <hr>
 

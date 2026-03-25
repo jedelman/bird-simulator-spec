@@ -4,7 +4,7 @@
 
 ## 🔴 Pre-Production Blockers
 
-- [ ] **Corvid tool use — object list (§06)** — Mechanic resolved (rhythm game, God of War style, mega stamina reward). Still need: discrete list of interactable object types per biome (e.g., trash can lid, car mirror, shiny object). Define before corvid class enters production.
+_None. All blockers resolved._
 
 ---
 
@@ -32,5 +32,11 @@
 - [x] **Egg/chick count** — Species-accurate ranges confirmed, capped at 3 for gameplay clarity.
 - [x] **Mate killed during breeding** — Second mate possible. Short window, high stamina cost. Rescue mechanic, not a mulligan.
 - [x] **Run clock** — No clock, no UI timer. Purely environmental. "One game you can't speedrun."
-- [x] **Death card design** — Dark Souls "YOU DIED" riff. Black and white, Sanrio-style font. Predation = "{SPECIES} LUNCH". Starvation = "VULTURE FOOD". Human threats: no message first occurrence — fade to black and white, silence. Intentionally jarring. Message appears on subsequent deaths.
-- [x] **Corvid tool use mechanic** — Rhythm game (God of War style). Hold B near interactable object → button sequence prompt → match it → mega stamina reward.
+- [x] **Death card design** — Dark Souls "YOU DIED" riff. Black and white, Sanrio-style font. Predation = "{SPECIES} LUNCH". Starvation = "VULTURE FOOD". Human threats: no message first occurrence — fade to black and white, silence. Subsequent human deaths show message.
+- [x] **Corvid tool use mechanic** — Rhythm game (God of War style). Hold B near interactable object → button sequence → match it → mega stamina reward.
+- [x] **Corvid tool use object list** — Full table defined: ant stick, car nutcracker, bird feeder lever, dumpster (with friends), steal from tourist, steal from hunter, scarecrow (false threat), shiny object (90% useless, 10% [SHINY OBJECT] achievement). See §06.
+- [x] **Corvid NPC recruitment** — Tap B (caw) to recruit ambient corvids. Required for dumpster. Sequence complexity decreases with more crows present.
+- [x] **Human type spectrum** — Tourist (harmless), Indigenous hunter (ambiguous, never visually signaled), trophy hunter (immediately lethal), poisoner/pest control (silent lethal), farmer (seasonal risk/reward).
+- [x] **Scarecrow** — Threat border fires, no actual threat. Inert. The fear is the mechanic.
+- [x] **Shiny object reward** — 1-in-10 triggers Dark Souls achievement overlay: [SHINY OBJECT] + small stamina bump. Other 9: stamina cost only. Crow happy regardless.
+- [x] **Farmer ecology** — Full seasonal system: Spring (turned soil + broadcast seed, moderate threat), Summer (crop-edge insects, silent spray poison, high threat), Fall (grain spill, distracted farmer, low threat), Winter (barn access via tool use, cat risk, low threat).
