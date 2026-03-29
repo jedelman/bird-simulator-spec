@@ -829,112 +829,139 @@
   <div class="section-break"><span class="section-number">05 —</span><div class="section-line"></div></div>
   <h2>Core Mechanics</h2>
 
-  <h3>Stamina</h3>
-  <p>Stamina is the game's primary resource. It drains continuously at a rate determined by season and activity. It refills only by eating. The bird cannot sprint, flap aggressively, sing, or defend without stamina cost. At zero stamina, the bird enters a distress state: sluggish movement, no vocalization, increased predator attraction. Prolonged zero stamina = death.</p>
+  <div class="callout">
+    <div class="callout-label">Systems Overview</div>
+    <p style="margin-bottom:0">Five interlocking systems govern gameplay: <strong>Stamina</strong> (energy resource), <strong>Exposure</strong> (environmental sensing), <strong>Vigilance</strong> (awareness multiplier), <strong>Stress</strong> (threat response), and <strong>Flocking</strong> (collective behavior). They are not independent — digestion affects stamina recharge; stress affects digestion and vigilance; panic suppresses digestion entirely; flock stress couples to player stress. Understanding how they interact is the game's skill floor.</p>
+  </div>
 
-  <p><strong>Stillness is the lowest drain state</strong> — the bird is not using energy, but it is also not eating. Stillness is never free; it is just cheaper than moving. The player must constantly weigh: does the environment justify burning stamina to forage, or is there a threat that makes stillness the better bet?</p>
+  <h3>Stamina &amp; Digestion</h3>
+
+  <p>Stamina is the primary resource. It drains continuously by activity and season. It does not refill directly from eating — <strong>eating begins digestion, and digestion rebuilds stamina</strong>. A bird that eats and immediately enters a stress state will digest slowly and recover poorly.</p>
+
+  <p>Digestion rate is governed by state: stillness accelerates it; movement and stress reduce it; panic drops it to zero. The optimal pattern is <em>assess → eat → still → digest → move</em>. Players who learn this survive Winter.</p>
 
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Activity</th><th>Stamina Rate</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Activity</th><th>Stamina Drain</th><th>Digestion Rate</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td>Still / perched</td><td class="mono risk-low">–0.5×</td><td>Base drain, no activity</td></tr>
-        <tr><td>Hopping / walking</td><td class="mono risk-low">–0.8×</td><td>Slow ground movement</td></tr>
-        <tr><td>Gliding</td><td class="mono risk-low">–0.7×</td><td>Efficient if height available</td></tr>
-        <tr><td>Active flapping</td><td class="mono risk-med">–2.0×</td><td>Fast but costly</td></tr>
-        <tr><td>Sprinting (ground)</td><td class="mono risk-med">–2.5×</td><td>Escape only, brief burst</td></tr>
-        <tr><td>Singing (mate call)</td><td class="mono risk-med">–1.5×</td><td>Also increases visibility</td></tr>
-        <tr><td>Eating</td><td class="mono risk-low">+4.0×</td><td>Refill rate, requires food source</td></tr>
-        <tr><td>Winter modifier</td><td class="mono risk-high">+0.5× all</td><td>All drain rates increase</td></tr>
+        <tr><td>Still / perched</td><td class="mono risk-low">–0.5×</td><td class="mono risk-low">Full</td><td>Optimal recovery state</td></tr>
+        <tr><td>Hopping / walking</td><td class="mono risk-low">–0.8×</td><td class="mono risk-med">Reduced</td><td></td></tr>
+        <tr><td>Gliding</td><td class="mono risk-low">–0.7×</td><td class="mono risk-med">Reduced</td><td>Efficient if height available</td></tr>
+        <tr><td>Active flapping</td><td class="mono risk-med">–2.0×</td><td class="mono risk-high">Minimal</td><td></td></tr>
+        <tr><td>Sprinting (ground)</td><td class="mono risk-med">–2.5×</td><td class="mono risk-high">Minimal</td><td>Escape only</td></tr>
+        <tr><td>Singing (mate call)</td><td class="mono risk-med">–1.5×</td><td class="mono risk-med">Reduced</td><td>Also raises exposure</td></tr>
+        <tr><td>Stress modifier</td><td class="mono risk-med">–1.2× on all</td><td class="mono risk-med">Reduced</td><td>Stacks with activity drain</td></tr>
+        <tr><td>Panic state</td><td class="mono risk-high">—</td><td class="mono risk-high">Zero</td><td>No stamina recovery; escape abilities unlocked</td></tr>
+        <tr><td>Winter modifier</td><td class="mono risk-high">+0.5× all drain</td><td class="mono risk-med">Unchanged</td><td></td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>Awareness, Stillness &amp; Collective Intelligence</h3>
+  <h3>Exposure &amp; Vigilance</h3>
 
-  <p>The bird has an <strong>Awareness</strong> stat, invisible to the player but governing predator detection range and stealth. Awareness increases while the bird is still and decreases while moving. A still bird on a high perch with good sightlines has dramatically better threat detection than a bird hopping through undergrowth. Movement — especially rapid movement — generates visual and auditory signatures that attract threats.</p>
+  <p>The environment is continuously painted with <strong>exposure state</strong> via volumes in the game loop. Every threat and opportunity emits, modifies, and interacts with these volumes. Exposure is an environmental property — not a player stat — that the player reads and responds to.</p>
 
-  <p>The optimal solo play pattern is: <em>move → perch → still → assess → move</em>. Players who skip the perch-and-assess step die more. There is no awareness meter on screen. Players learn to feel it through predator behavior — are they scanning? Agitated? The read is the skill.</p>
+  <p><strong>Vigilance</strong> is the player's multiplier on exposure reading. High vigilance = the bird reads the painted environment accurately and at range. Low vigilance = the bird misses what's in front of it.</p>
 
-  <h4>Collective Awareness — Gregarious Classes</h4>
+  <ul style="margin: 10px 0 16px 28px; line-height:2.2;">
+    <li><strong>Stillness</strong> increases vigilance</li>
+    <li><strong>Movement</strong> decreases vigilance</li>
+    <li><strong>Cover</strong> acts as an inverse multiplier on exposure — a bird in dense cover is harder to detect and reads the environment as less exposed</li>
+  </ul>
 
-  <p>Gregarious birds gain awareness faster and further when in a flock. Tap Y to recruit nearby NPC birds (contact call). Once a flock assembles, the collective awareness radius expands — each bird is a sensor node. <strong>Flock geometry determines both the speed and bounds of awareness gain:</strong> a tight cluster gives fast awareness in a small radius; a spread flock gives slower but much wider coverage. Players who consciously position themselves within a flock are playing a different, deeper game.</p>
+  <p><strong>Threat</strong> is distinct from exposure. It is specific to hostile NPCs and is not painted broadly. However, threat influences exposure: a predator's presence raises the exposure reading of its occupied area, which the player reads with sufficient vigilance. High vigilance + stillness + cover = maximum environmental intelligence. Moving in the open with low vigilance = flying blind.</p>
+
+  <p>There is no vigilance meter on screen. Players feel it through information quality — flock behavior, ambient alarm calls, environmental tells. The read is the skill.</p>
+
+  <h3>Stress &amp; Panic</h3>
+
+  <p><strong>Stress</strong> accumulates from threat exposure, food scarcity, sustained high vigilance, and (for gregarious species) being alone. It suppresses stamina recharge and vigilance quality. Stress decays when threat is absent.</p>
+
+  <p>Above a threshold, stress becomes <strong>panic</strong>:</p>
+
+  <ul style="margin: 10px 0 16px 28px; line-height:2.2;">
+    <li>Unlocks <strong>panicked flight / dodge predator</strong> (burst escape, unavailable in normal state)</li>
+    <li>Suppresses digestion (stamina recovery = zero)</li>
+    <li>Suppresses Y-button abilities (no singing, no flock recruitment)</li>
+    <li>Panic stacks stress <em>faster</em> than normal threat exposure</li>
+    <li>Panic stress decays <em>slower</em> than normal stress</li>
+    <li>Panic ends when <em>threat</em> drops below threshold — the bird responds to actual danger, not its own anxiety</li>
+  </ul>
+
+  <div class="callout red">
+    <div class="callout-label">Ecological Note — Panic Cost</div>
+    <p style="margin-bottom:0">Surviving via panic escape is a net negative on stamina economy. The bird escapes but digestion was suppressed, stress takes time to decay, and stillness must be reestablished before recovery begins. Experienced players avoid triggering predators rather than relying on escape. Escape is not free.</p>
+  </div>
+
+  <h3>Flocking</h3>
+
+  <p>A flock is a <strong>friendly NPC</strong> occupying volumes in the environment. Individual birds are a particle system — not individually simulated agents. The flock entity has its own attribute set and its own stress/panic system, structurally identical to the player's.</p>
+
+  <p><strong>Flock strength = number of birds. The player is a bird.</strong> Joining a flock increases its strength; leaving weakens it. Predation permanently reduces flock strength — birds lost do not return. Strength does not recover over time. The player's presence temporarily bolsters flock behavior beyond raw headcount.</p>
+
+  <p>Flock stress and player stress are <strong>coupled</strong>. A stressed flock raises the player's stress. A panicking flock triggers the player's alarm exposure even if the direct threat is not visible. This is the emergent cost/benefit of flocking: earlier warning and better collective vigilance, but the flock's fear becomes your fear.</p>
+
+  <h4>Species Flocking Attributes</h4>
 
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Class</th><th>Gregarious?</th><th>Flock Assembly Speed</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Attribute</th><th>Type</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><strong>Parids</strong></td><td class="risk-low">Primary</td><td class="risk-low">Fastest</td><td>Chickadees lead mixed-species flocks. Player alarm calls alert all NPC birds in range.</td></tr>
-        <tr><td><strong>Corvids</strong></td><td class="risk-low">High</td><td class="risk-low">Fast</td><td>Crows already recruit for tool use; flock awareness extends that system.</td></tr>
-        <tr><td><strong>Sparrows</strong></td><td class="risk-med">Partial</td><td class="risk-med">Moderate</td><td>Loose flocks. Smaller radius, slower assembly than parids.</td></tr>
-        <tr><td><strong>Warblers</strong></td><td class="risk-med">Partial</td><td class="risk-med">Slow</td><td>Join mixed flocks but don't lead them. Benefit from parid-led flocks.</td></tr>
-        <tr><td><strong>Pigeons</strong></td><td class="risk-low">High</td><td class="risk-low">Instant</td><td>Flock constantly. Collective awareness is fast but reactive — pigeons respond before they understand. High false-alarm rate.</td></tr>
-        <tr><td><strong>Gulls</strong></td><td class="risk-med">Colonial</td><td class="risk-med">Moderate</td><td>Flock awareness near colony only. Away from colony: solitary rules apply.</td></tr>
-        <tr><td><strong>Vultures</strong></td><td class="risk-med">Kettle</td><td class="risk-med">Slow</td><td>Collective awareness active only while kettling in thermals.</td></tr>
+        <tr><td><strong>Cohesion</strong></td><td class="mono">Permanent</td><td>How tightly flock geometry holds. High = tight cluster, fast collective vigilance, small radius. Low = spread geometry, slower but wider.</td></tr>
+        <tr><td><strong>Interspecies affinity</strong></td><td class="mono">Permanent</td><td>Willingness to join/accept mixed-species flocks. High (parids) = open mixed flocks. Lower (some corvids) = species-preferential.</td></tr>
+        <tr><td><strong>Panic threshold</strong></td><td class="mono">Permanent</td><td>Stress level at which flock enters panic. Corvids: very high — effectively never panic. Warblers/sparrows: low — scatter readily.</td></tr>
+        <tr><td><strong>Scatter vs. mob</strong></td><td class="mono">Permanent</td><td>At panic: scatter (disperse/flee) or mob (converge on threat). Corvids mob. Warblers scatter. Most species scatter.</td></tr>
+        <tr><td><strong>Vigilance</strong></td><td class="mono">Dynamic</td><td>Current flock-level vigilance, influenced by stillness, movement, alarm events. Contributes to collective exposure reading.</td></tr>
+        <tr><td><strong>Alarm</strong></td><td class="mono">Dynamic</td><td>Propagation speed and radius of alarm signals through flock. Parids: fast and wide. Pigeons: instant but low-fidelity, high false-alarm rate.</td></tr>
+        <tr><td><strong>Stress</strong></td><td class="mono">Dynamic</td><td>Current flock stress. Coupled to player. Raises with threat exposure, predation events, strength loss.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h4>Solitary Awareness — Solo Classes</h4>
-
-  <p>Solitary classes — Herons, Accipiters, Buteos, Mimids — cannot recruit flocks and gain no collective awareness bonus. In compensation, they have a <strong>sharper, wider baseline awareness</strong> and gain more from stillness than any gregarious class. A perfectly still heron at water's edge has detection range no flock can match. A Cooper's Hawk motionless in a forest gap is functionally invisible and sees everything.</p>
-
-  <p>This makes solitary vs. gregarious a genuine strategic axis. Gregarious birds survive through shared intelligence and social buffering. Solitary birds survive through individual mastery of stillness. Both paths lead to the same destination; neither is easier.</p>
+  <div class="callout">
+    <div class="callout-label">Solitary Species &amp; Single-Bird Flocks</div>
+    <p>All species use the flock system. A solitary species is a flock of one — a specialized case with no collective alarm propagation, no interspecies affinity interactions, but the full stress/panic/vigilance system applies. When the player joins a solitary NPC they form a two-bird flock; coupled stress begins.</p>
+    <p style="margin-bottom:0">Solitary species have higher panic thresholds and sharper individual vigilance than gregarious species at equivalent flock strength. A single heron reads its environment better than a single sparrow. Tradeoff: no social buffering, no alarm network, no distributed sensing.</p>
+  </div>
 
   <div class="callout">
     <div class="callout-label">V2 Note — Owls</div>
-    <p style="margin-bottom:0">Owls will be the solitary awareness ceiling: nocturnal masters, the apex of stillness-as-mechanic, the thing everything else fears. Their absence in V1 is intentional. They need to be earned by the player base first.</p>
+    <p style="margin-bottom:0">Owls will be the solitary awareness ceiling: nocturnal masters, apex of stillness-as-mechanic, the thing everything else fears. Absence from V1 intentional.</p>
   </div>
 
-  <h3>Threat System</h3>
-  <p>Threat is communicated via a colored border vignette around the screen. No text, no icons, no meter fill. The border color and pulse rate convey both presence and urgency.</p>
+  <h3>Perching</h3>
+  <p>Perching is socket-based. Each valid perch exposes a socket; landing triggers a hidden actor that controls animation. Perch behavior is precise and species-appropriate. A perched bird with no input is still: vigilance accumulates, digestion runs at full rate. Perching is the primary path to the optimal state.</p>
+
+  <h3>Threat System (Player Feedback)</h3>
+  <p>The threat border reflects the threat volume's influence on the player's current position — a felt consequence of the exposure system, not a separate HUD element. Color and pulse rate convey presence and urgency.</p>
 
   <div class="threat-demo">
-    <div class="threat-item">
-      <div class="threat-box threat-none">🐦</div>
-      <div class="threat-label">Clear</div>
-    </div>
-    <div class="threat-item">
-      <div class="threat-box threat-low">🐦</div>
-      <div class="threat-label">Nearby</div>
-    </div>
-    <div class="threat-item">
-      <div class="threat-box threat-high">🐦</div>
-      <div class="threat-label">Imminent</div>
-    </div>
-    <div class="threat-item">
-      <div class="threat-box threat-human" style="border: 2px solid rgba(45,27,78,0.4);">🐦</div>
-      <div class="threat-label">Human*</div>
-    </div>
+    <div class="threat-item"><div class="threat-box threat-none">🐦</div><div class="threat-label">Clear</div></div>
+    <div class="threat-item"><div class="threat-box threat-low">🐦</div><div class="threat-label">Nearby</div></div>
+    <div class="threat-item"><div class="threat-box threat-high">🐦</div><div class="threat-label">Imminent</div></div>
+    <div class="threat-item"><div class="threat-box threat-human" style="border: 2px solid rgba(45,27,78,0.4);">🐦</div><div class="threat-label">Human*</div></div>
   </div>
 
-  <p style="font-size:14px; color:var(--feather); font-style:italic;">* Human threats (poison, hunters) produce <strong>no threat border</strong>. Corvid-class only. Death arrives without warning. Players must learn environmental tells: scattered seed near a window (poison), distant vehicle sounds, human silhouette on horizon (hunter). This is ecologically accurate and deliberately brutal.</p>
+  <p style="font-size:14px; color:var(--feather); font-style:italic;">* Human threats do not paint the threat border. No exposure volume is generated. The environment looks identical to a safe state. Players must learn environmental tells. This is ecologically accurate and deliberately brutal.</p>
 
   <h3>Mate Finding (Adult Phase)</h3>
-  <p>To complete a run, the bird must acquire a mate before the breeding window opens. Mate-finding requires:</p>
-  <ol style="margin: 12px 0 12px 28px; line-height:2;">
-    <li>Reaching a <strong>visible, elevated perch</strong> (detected automatically when in range)</li>
-    <li>Holding B to <strong>sing</strong> — stamina drains at 1.5× while singing</li>
-    <li>Maintaining the song for long enough that a mate responds (duration scales with species — warblers take longest)</li>
-    <li>Not dying while doing it</li>
-  </ol>
-  <p><strong>If the mate is killed during the breeding window</strong>, a second mate can be found — but the window is short and the stamina cost is high. It's a rescue, not a mulligan. Chicks already hatched remain in the nest; the clock does not stop.</p>
+  <p>Mate-finding requires: reaching a visible elevated perch (socket in range) → hold Y to sing (stamina –1.5×, digestion reduced, exposure raised) → sustain song until mate responds → not dying. Singing raises exposure. Threat suppresses Y entirely. A bird that sings before building vigilance is advertising into unknown danger.</p>
 
-  <p>Singing makes the bird highly visible. The threat border becomes more sensitive while singing. This is the game's central tension made explicit: to breed, you must advertise. To advertise, you must accept exposure. There is no safe place to sing.</p>
+  <p><strong>If the mate is killed during the breeding window</strong>, a second mate can be found — short window, high stamina cost. Rescue mechanic, not a mulligan.</p>
 
   <h3>Nest Defense (Red Light / Green Light)</h3>
   <p>The final sequence begins once eggs are laid. The bird must:</p>
   <ul style="margin: 12px 0 12px 28px; line-height:2;">
     <li><strong>Green light:</strong> Leave the nest to forage. Return to feed chicks (B near nest). Each chick has a visible fledgling meter — a small fill bar that jumps with each successful feeding and drains slowly between feeds.</li>
-    <li><strong>Red light:</strong> Predator detected. Return immediately. Go still. Border pulses. Do not call, do not move. Feeding is suppressed while border is red.</li>
+    <li><strong>Red light:</strong> Predator detected. Return immediately. Go still. Border pulses. Do not call, do not move. Feeding suppressed while border is red.</li>
     <li><strong>Fail state:</strong> Predator reaches undefended nest, or parent is killed during defense.</li>
   </ul>
 
-  <p><strong>Score and camera:</strong> As the breeding sequence begins, the score layers in a heartbeat — steady, present, quietly insistent. It does not accelerate with threat; it simply stays. Each chick meter that fills triggers a brief musical swell. Each chick that fledges is a discrete win moment: the camera holds on the nest for a beat, then releases.</p>
+  <p><strong>Score and camera:</strong> The score layers in a heartbeat as breeding begins — steady, present. Each chick meter fill triggers a brief swell. Each fledge: the camera holds on the nest for a beat, then releases.</p>
 
-  <p><strong>Camera and scale:</strong> During the breeding sequence, the camera always keeps the nest in frame — even at distance. At Very Large bird scales, a parent far out foraging will see the nest as a tiny point in the landscape. The camera makes the player feel the distance. The heartbeat makes them feel the stakes. This is intentional: the game wants the player to feel very small and very responsible at the same time.</p>
+  <p><strong>Camera and scale:</strong> The camera always keeps the nest in frame. At Very Large scales a foraging parent sees the nest as a tiny point. The camera makes the player feel the distance. The heartbeat makes them feel the stakes.</p>
 
-  <p>Chicks fledge one by one over the final 2–3 minutes. Fledge all chicks = perfect run. Fledge at least one = successful run. Zero survivors = run failure even if the parent is alive.</p>
+  <p>Chicks fledge one by one over the final 2–3 minutes. Fledge all = perfect run. Fledge one = successful run. Zero = failure even if the parent is alive.</p>
 
   <!-- 06 BIRD CLASSES -->
   <div class="section-break"><span class="section-number">06 —</span><div class="section-line"></div></div>
